@@ -1,0 +1,2145 @@
+{
+  "config": {
+    "flipped": false,
+    "grid_placing": false,
+    "images": {
+      "enemies": {
+        "path": "imgs\\enemies.png",
+        "tiles": [
+          "Target"
+        ]
+      },
+      "flags": {
+        "path": "imgs\\flags.png",
+        "tiles": [
+          "Player_spawn"
+        ]
+      },
+      "tiles": {
+        "path": "imgs\\tiles.png",
+        "tiles": [
+          "Tile",
+          "Barrier"
+        ]
+      }
+    },
+    "name": "Sandbox",
+    "offset": [
+      -2585,
+      -373
+    ],
+    "orientation": 0,
+    "strata": 0,
+    "strata_alpha": true,
+    "tile": {
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    "tilemap": {
+      "dimensions": [
+        100,
+        30
+      ]
+    }
+  },
+  "tiles": [
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        0,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        64,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        128,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        192,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        256,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        320,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        384,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        448,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        640,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        704,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        768,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        832,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1664,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1856,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        512,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        576,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        896,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        960,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1024,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1088,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1344,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1408,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1472,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1536,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1600,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2624,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2688,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2880,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2816,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2752,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1152,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3008,
+        384
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2240,
+        640
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2240,
+        704
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2240,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2240,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1792,
+        704
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1728,
+        704
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1728,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1792,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1792,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1728,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3904,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3776,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3712,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3648,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3840,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4160,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4224,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4288,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4352,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4032,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4096,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4864,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4800,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4736,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4672,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4608,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4544,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4480,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4416,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3968,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6336,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6272,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6208,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6144,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6016,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5952,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5888,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5824,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5760,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5696,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5632,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5568,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        6080,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4928,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4992,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5056,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5120,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5184,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5248,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5312,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5376,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5440,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        5504,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1920,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1984,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2176,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1216,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1280,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2368,
+        576
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2304,
+        576
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2240,
+        576
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2432,
+        704
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2432,
+        640
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2432,
+        576
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3520,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3584,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2112,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2048,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2560,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2496,
+        768
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2752,
+        512
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3392,
+        320
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        768,
+        704
+      ],
+      "strata": 0,
+      "tile": "Player_spawn",
+      "tileset": "flags"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        832
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        768
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        704
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        640
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        576
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        448,
+        512
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        832
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        768
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        704
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        640
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        576
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        5696,
+        512
+      ],
+      "strata": 5,
+      "tile": "Barrier",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3008,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3072,
+        960
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3136,
+        1024
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3200,
+        1024
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3264,
+        1024
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3328,
+        1024
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3392,
+        960
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3456,
+        896
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        2944,
+        832
+      ],
+      "strata": 5,
+      "tile": "Tile",
+      "tileset": "tiles"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3390,
+        203
+      ],
+      "strata": 0,
+      "tile": "Target",
+      "tileset": "enemies"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        4589,
+        745
+      ],
+      "strata": 0,
+      "tile": "Target",
+      "tileset": "enemies"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1474,
+        640
+      ],
+      "strata": 0,
+      "tile": "Target",
+      "tileset": "enemies"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1987,
+        482
+      ],
+      "strata": 0,
+      "tile": "Target",
+      "tileset": "enemies"
+    },
+    {
+      "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        3228,
+        708
+      ],
+      "strata": 0,
+      "tile": "Target",
+      "tileset": "enemies"
+    }
+  ]
+}
