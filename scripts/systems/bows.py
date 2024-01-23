@@ -1,3 +1,4 @@
+from scripts import GLOBAL_STAT_CURVE
 from scripts.mixer import Sfx
 from scripts.sprite import Sprite
 
@@ -21,8 +22,7 @@ class Bow(object):
         self.use_move_restriction = 0
         
         # Stats
-        self.damage = 0
-        self.weight = 0
+        self.power = 0
         self.knockback = 0
 
         self.state = 0
@@ -131,7 +131,8 @@ class Bow(object):
         self.prediction_line = []
 
         if self.state == 1:
-            focus = self.player.focus / (self.player.focus + 5)
+            # Focus curve graph: https://www.desmos.com/calculator/4rohuhaqnd
+            focus = round(self.player.focus / (self.player.focus + GLOBAL_STAT_CURVE), 2)
 
             self.pre_charge = clamp(self.pre_charge + (1 + 1 * focus) * game.delta_time, 0, self.pre_charge_max)
             abs_prog = self.pre_charge / self.pre_charge_max
@@ -237,7 +238,10 @@ class Arrow(Sprite):
         # distance_travelled = get_distance(self.position, self.start_position)
 
         if entity.sprite_type == 'Enemy':
-            entity.on_damaged(game, math.floor(self.bow.damage * self.charge), round(self.bow.knockback * self.charge))
+            power = math.floor(self.bow.power * self.charge) + self.bow.player.power
+            knockback = math.floor(self.bow.knockback * self.charge) + self.bow.player.knockback
+
+            entity.on_damaged(game, power, knockback)
 
             # Particles
             for _ in range(3):
@@ -355,9 +359,9 @@ class Arrow(Sprite):
                 self.afterimage_ticks[0] = 0
                 self.afterimages.append([self.image.copy(), self.image.get_alpha(), self.position])
 
-        angle = (180 / math.pi) * math.atan2(*(self.position[0] - self.previous_position[0], self.position[1] - self.previous_position[1])) - 90
-
-        self.image = pygame.transform.rotate(self.original_image, angle).convert_alpha()
+        if not game.delta_time <= 0.01:
+            angle = (180 / math.pi) * math.atan2(*(self.position[0] - self.previous_position[0], self.position[1] - self.previous_position[1])) - 90
+            self.image = pygame.transform.rotate(self.original_image, angle).convert_alpha()
 
         for tile in game.tilemap.chunks[self.current_chunk]:
             if tile.rect.colliderect(self.rect):
@@ -396,9 +400,8 @@ class WoodenBow(Bow):
 
         self.use_move_restriction = 3
 
-        self.damage = 2
+        self.power = 2
         self.knockback = 1
-        self.weight = 1
 
         self.charge = 0
 
