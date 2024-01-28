@@ -56,6 +56,9 @@ class Bow(object):
         ...
 
     def fire(self, game):
+        info = {'charge': self.charge}
+        self.player.call_talents(game, 'on_fire', info)
+
         center = self.player.get_position('center')
 
         arrow = Arrow(self, (center[0] + 10 * self.player.direction, center[1]), self.player.index, self.special, self.effect)
@@ -235,10 +238,13 @@ class Arrow(Sprite):
         particles = []
         velocity = pygame.math.Vector2(self.position) - pygame.math.Vector2(self.previous_position)
 
-        # distance_travelled = get_distance(self.position, self.start_position)
+        distance_travelled = get_distance(self.position, self.start_position)
 
+        info = {'distance_travelled': distance_travelled, 'damage_multiplier': 1}
+        info = self.bow.player.call_talents(game, 'on_arrow', info)
+    
         if entity.sprite_type == 'Enemy':
-            power = math.floor(self.bow.power * self.charge) + self.bow.player.power
+            power = math.floor(((self.bow.power * self.charge) + self.bow.player.power) * info['damage_multiplier'])
             knockback = math.floor(self.bow.knockback * self.charge) + self.bow.player.knockback
 
             entity.on_damaged(game, power, knockback)

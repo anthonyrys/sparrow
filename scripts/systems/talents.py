@@ -1,5 +1,7 @@
 from scripts.utils import generate_import_dict
 
+from scripts import FRAME_RATE
+
 class Talent(object):
     area = None
     rarity = None
@@ -11,9 +13,23 @@ class Talent(object):
     description = None
 
     flags = []
+    active = False
 
-    def __init__(self):
-        self.stacks = 1 if self.stackable else None
+    def __init__(self, player):
+        self.player = player
+        self.stacks = 0 if self.stackable else None
+
+        if self.stackable:
+            self.stack()
+
+    def stack(self):
+        self.stacks += 1
+
+    def call(self, game, info):
+        ...
+
+    def update(self, game):
+        ...
 
 
 # Offensive
@@ -25,6 +41,11 @@ class Precision(Talent):
 
     category = 'offensive'
     description = 'Gain ~g+1 Power~'
+    
+    def stack(self):
+        super().stack()
+
+        self.player.power += 1
 
 class Marksman(Talent):
     area = 'generic'
@@ -33,19 +54,67 @@ class Marksman(Talent):
     category = 'offensive'
     description = 'Your arrows deal 30%;more damage past;25m' # Note: 1 Pixel = 0.038370147 Meters
 
+    flags = ['on_arrow']
+
+    def __init__(self, player):
+        self.pixels = round(25 / 0.038370147, -1)
+        self.multiplier = .3
+
+        super().__init__(player)
+
+    def call(self, game, info):
+        super().call(game, info)
+
+        if info['distance_travelled'] >= self.pixels:
+            info['damage_multiplier'] += self.multiplier
+
+        return info
+
 class RapidAssault(Talent):
     area = 'generic'
     rarity = 'common'
 
     category = 'offensive'
-    description = 'Charged arrows;increase your ~gFocus~;by ~g10%~ for 5s'
+    description = 'Charged arrows give;~g+5 Focus~ for 3s'
+
+    flags = ['on_fire']
+    active = True
+
+    def __init__(self, player):
+        self.duration = None
+
+        self.current_focus = 0
+        self.focus = 5
+
+        super().__init__(player)
+
+    def call(self, game, info):
+        super().call(game, info)
+        
+        if info['charge'] == 1 and self.duration == None:
+            self.player.focus += self.focus
+            self.current_focus = self.focus
+            self.duration = FRAME_RATE * 3
+
+        return info
+
+    def update(self, game):
+        super().update(game)
+
+        if self.duration != None:
+            self.duration -= 1 * game.delta_time
+
+            if self.duration <= 0:
+                self.duration = None
+                self.player.focus -= self.current_focus
+                self.current_focus = 0
 
 class ExplosiveShot(Talent):
     area = 'generic'
     rarity = 'rare'
 
     category = 'offensive'
-    description = 'Charged arrows; explode for 75% of; your ~gPower~'
+    description = 'Charged arrows;explode for 75% of;your ~gPower~'
 
 
 # Defensive
@@ -58,6 +127,12 @@ class Vigor(Talent):
     category = 'defensive'
     description = 'Gain ~g+1 Health~'
 
+    def stack(self):
+        super().stack()
+
+        self.player.max_health += 1
+        self.player.health += 1
+
 class Evasiveness(Talent):
     area = 'generic'
     rarity = 'common'
@@ -67,14 +142,23 @@ class Evasiveness(Talent):
     category = 'defensive'
     description = 'Increase the duration;of invincibility when;damaged by 20%'
 
-class Steadfast(Talent):
-    area = 'generic'
-    rarity = 'common'
+    flags = ['on_damaged']
 
-    stackable = 3
+    def __init__(self, player):
+        self.multiplier = 0
 
-    category = 'defensive'
-    description = 'Gain ~g+1 Weight~'
+        super().__init__(player)
+
+    def stack(self):
+        super().stack()
+
+        self.multiplier += 0.2
+
+    def call(self, game, info):
+        super().call(game, info)
+
+        info['iframe_multiplier'] += self.multiplier
+        return info
 
 class Exoskeleton(Talent):
     area = 'generic'
@@ -92,14 +176,58 @@ class Swiftfoot(Talent):
     stackable = 3
 
     category = 'mobility'
-    description = 'Gain ~g+1 Speed~ for;2s upon dashing'
+    description = 'Dashing gives;~g+1 Speed~ for 2s'
+
+    flags = ['on_dash']
+    active = True
+
+    def __init__(self, player):
+        self.duration = None
+
+        self.current_speed = 0
+        self.speed = 0
+
+        super().__init__(player)
+
+    def stack(self):
+        super().stack()
+
+        self.speed += 1
+
+    def call(self, game, info):
+        super().call(game, info)
+
+        if self.duration != None:
+            self.player.speed -= self.current_speed
+
+        self.player.speed += self.speed
+        self.current_speed = self.speed
+        self.duration = FRAME_RATE * 2
+        
+        return info
+
+    def update(self, game):
+        super().update(game)
+
+        if self.duration != None:
+            self.duration -= 1 * game.delta_time
+
+            if self.duration <= 0:
+                self.duration = None
+                self.player.speed -= self.current_speed
+                self.current_speed = 0
 
 class AerialAffinity(Talent):
     area = 'generic'
     rarity = 'common'
 
     category = 'mobility'
-    description = 'Increase the;effectiveness of your;glide by 25%'
+    description = 'Increase the;effectiveness of your;glide by 15%'
+
+    def __init__(self, player):
+        player.glide /= 1.15
+
+        super().__init__(player)
 
 class Momentum(Talent):
     area = 'generic'

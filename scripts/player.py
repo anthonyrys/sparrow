@@ -293,22 +293,28 @@ class Player(Sprite):
         self.cooldowns['@dash'] = self.dash_cooldown
         self.dashes[0] -= 1
 
+        self.call_talents(game, 'on_dash')
+
+        # Speed curve graph: https://www.desmos.com/calculator/7rtyebqf91
+        speed = round(0.5 * self.speed / (self.speed + GLOBAL_STAT_CURVE), 2)
+        max_move_speed = self.move_speed[1] * (1 + speed)
+
         if self.inputs['left'] and self.inputs['right']:
             if self.tinput == 'left':
-                self.velocity[0] = -self.move_speed[1] * 2
+                self.velocity[0] = -max_move_speed * 2
             elif self.tinput == 'right':
-                self.velocity[0] = self.move_speed[1] * 2
+                self.velocity[0] = max_move_speed * 2
         elif self.inputs['left']:
-            self.velocity[0] = -self.move_speed[1] * 2
+            self.velocity[0] = -max_move_speed * 2
         elif self.inputs['right']:
-            self.velocity[0] = self.move_speed[1] * 2
+            self.velocity[0] = max_move_speed * 2
         else:
             self.velocity[0] = 0
 
         if self.inputs['up']:
-            self.velocity[1] = -self.move_speed[1]
+            self.velocity[1] = -max_move_speed
         elif self.inputs['down']:
-            self.velocity[1] = self.move_speed[1]
+            self.velocity[1] = max_move_speed
         else:
             self.velocity[1] = 0
 
@@ -340,7 +346,10 @@ class Player(Sprite):
         if self.iframes > 0:
             return False
 
-        self.iframes = 60
+        info = {'iframe_multiplier': 1}
+        info = self.call_talents(game, 'on_damaged', info)
+
+        self.iframes = 60 * info['iframe_multiplier']
 
         self.health -= damage
         self.health = clamp(self.health, 0, self.max_health)
@@ -469,43 +478,45 @@ class Player(Sprite):
 
         # Speed curve graph: https://www.desmos.com/calculator/7rtyebqf91
         speed = round(0.5 * self.speed / (self.speed + GLOBAL_STAT_CURVE), 2)
+        move_speed = self.move_speed[0] * (1 + speed)
+        max_move_speed = self.move_speed[1] * (1 + speed)
 
         # X velocity
-        if self.velocity[0] > self.move_speed[1] - self.move_restriction:
-            if abs(self.velocity[0]) - self.move_speed[0] < self.move_friction:
-                self.velocity[0] -= abs(self.velocity[0]) - self.move_speed[0]
+        if self.velocity[0] > max_move_speed - self.move_restriction:
+            if abs(self.velocity[0]) - move_speed < self.move_friction:
+                self.velocity[0] -= abs(self.velocity[0]) - move_speed
 
             else:
                 self.velocity[0] -= self.move_friction * game.delta_time
 
-        elif self.velocity[0] < -self.move_speed[1] + self.move_restriction:
-            if abs(self.velocity[0]) - self.move_speed[0] < self.move_friction:
-                self.velocity[0] += abs(self.velocity[0]) - self.move_speed[0]
+        elif self.velocity[0] < -max_move_speed + self.move_restriction:
+            if abs(self.velocity[0]) - move_speed < self.move_friction:
+                self.velocity[0] += abs(self.velocity[0]) - move_speed
 
             else:
                 self.velocity[0] += self.move_friction * game.delta_time
 
         if 'damaged' not in self.events:
             if self.inputs['right'] and not self.inputs['left']:
-                self.velocity[0] += self.move_speed[0] * game.delta_time if self.velocity[0] < self.move_speed[1] - self.move_restriction else 0
+                self.velocity[0] += move_speed * game.delta_time if self.velocity[0] < max_move_speed - self.move_restriction else 0
 
             elif self.inputs['left'] and not self.inputs['right']:
-                self.velocity[0] -= self.move_speed[0] * game.delta_time if self.velocity[0] > -self.move_speed[1] + self.move_restriction else 0
+                self.velocity[0] -= move_speed * game.delta_time if self.velocity[0] > -max_move_speed + self.move_restriction else 0
 
             if self.inputs['right'] and self.inputs['left']:
                 if self.tinput == 'left':
-                    self.velocity[0] += self.move_speed[0] * game.delta_time if self.velocity[0] < self.move_speed[1] - self.move_restriction else 0
+                    self.velocity[0] += move_speed * game.delta_time if self.velocity[0] < max_move_speed - self.move_restriction else 0
                 elif self.tinput == 'right':
-                    self.velocity[0] -= self.move_speed[0] * game.delta_time if self.velocity[0] > -self.move_speed[1] + self.move_restriction else 0
+                    self.velocity[0] -= move_speed * game.delta_time if self.velocity[0] > -max_move_speed + self.move_restriction else 0
 
             if not self.inputs['right'] and not self.inputs['left']:
                 if self.velocity[0] > 0:
-                    self.velocity[0] -= self.move_speed[0] * .5 * game.delta_time
+                    self.velocity[0] -= move_speed * .5 * game.delta_time
 
                 elif self.velocity[0] < 0:
-                    self.velocity[0] += self.move_speed[0] * .5 * game.delta_time
+                    self.velocity[0] += move_speed * .5 * game.delta_time
 
-        if abs(self.velocity[0]) < self.move_speed[0] * game.delta_time:
+        if abs(self.velocity[0]) < move_speed * game.delta_time:
             self.velocity[0] = 0
 
         if 'damaged' not in self.events:
@@ -734,6 +745,13 @@ class Player(Sprite):
         if return_value == -1:
             return
 
+    def call_talents(self, game, flag, info={}):
+        for talent in self.talents:
+            if flag in talent.flags:
+                info = talent.call(game, info)
+        
+        return info
+
     def update(self, game):
         if self.dead:
             return
@@ -766,6 +784,10 @@ class Player(Sprite):
         
         self.update_targets(game)
         self.update_level(game)
+
+        for talent in self.talents:
+            if talent.active:
+                talent.update(game)
 
         self.max_health = clamp(self.max_health, 1, self.max_health_cap)
         self.health = clamp(self.health, 0, self.max_health)

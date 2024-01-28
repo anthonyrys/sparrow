@@ -124,6 +124,8 @@ class Game(object):
 
         self.load_tilemap(self.area)
 
+        self.__debug_player_stats = False
+
     def on_player_respawn(self):
         self.player.dead = False
 
@@ -251,16 +253,16 @@ class Game(object):
             found = False
             for talent in self.player.talents:
                 if self.card.talent == talent.__class__:
-                    talent.stacks += 1
+                    talent.stack()
                     found = True
                     break
 
             if not found:
-                talent = self.card.talent()
+                talent = self.card.talent(self.player)
                 self.player.talents.append(talent)
 
         else:
-            talent = self.card.talent()
+            talent = self.card.talent(self.player)
             self.player.talents.append(talent)
 
         del self.delta_time_multipliers['card_spawn']
@@ -335,6 +337,9 @@ class Game(object):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     quit = True
+
+                if event.key == pygame.K_1:
+                    self.__debug_player_stats = not self.__debug_player_stats
 
                 if self.in_cards and self.card_active:
                     if event.key in self.player.keybinds['$interact']:
@@ -499,6 +504,12 @@ class Game(object):
                     
             elif not particle.use_entity_surface:
                 particle.render(self.ui_display)
+
+        if self.__debug_player_stats:
+            for i, name in enumerate(['max_health', 'power', 'speed', 'focus']):
+                text = Fonts.create('m3x6', f'{name}: ~g{getattr(self.player, name)}~')
+
+                self.ui_display.blit(text, (20, 100 + (20 * i)))
 
         for ui in self.ui:
             if hasattr(ui, 'use_entity_surface'):
