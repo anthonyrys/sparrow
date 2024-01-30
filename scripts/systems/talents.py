@@ -114,7 +114,7 @@ class ExplosiveShot(Talent):
     rarity = 'rare'
 
     category = 'offensive'
-    description = 'Charged arrows;explode for 75% of;your ~gPower~'
+    description = '???'
 
 
 # Defensive
@@ -234,7 +234,7 @@ class Momentum(Talent):
     rarity = 'rare'
 
     category = 'mobility'
-    description = 'Dashing reduces its;cooldown by 10% for;3s, up to 50%'
+    description = '???'
 
 
 # Utility
@@ -247,7 +247,7 @@ class Adaptivity(Talent):
 
 
 TALENTS = {
-    'R_RARITY': 0.1,
+    'R_RARITY': 0.0,
 
     'generic': {
         'common': {},
