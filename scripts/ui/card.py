@@ -4,8 +4,10 @@ from scripts.sprite import Sprite
 from scripts.fonts import Fonts
 
 from scripts.utils import load_spritesheet, get_bezier_point, bezier_presets
+from scripts.visual_fx import PolygonParticle
 
 import pygame
+import random
 import os
 
 class Card(Sprite):
@@ -31,6 +33,11 @@ class Card(Sprite):
         self.flip_count = 0
         self.flip_time = [0, 0]
         self.flip_dir = 0
+
+        self.image_pulse_frames = [0, 0]
+        self.image_pulse_color = (0, 0, 0)
+        self.image_pulse_bezier = bezier_presets['ease_in']
+        self.image_pulse_dt_time = 0
 
         self.selected = False
         self.deselected_y = SCREEN_DIMENSIONS[1] / 2 - self.rect.height / 2
@@ -88,12 +95,41 @@ class Card(Sprite):
             self.images[1].blit(surface, surface.get_rect(midtop=center)) 
             center[1] += surface.get_height() + 6
 
-    def flip(self, dir=0, t=14):
+    def burst(self, game):
+        # Particles
+        particles = []
+        
+        center = self.get_position('center')
+        h = self.image.get_height()
+        for i in range(random.randint(5, 8)):
+            start = [*center]
+            start[1] += random.randint(-h // 3, h // 3)
+
+            position = [*start]
+            position[0] += random.randint(100, 200) if i % 2 != 0 else random.randint(-200, -100)
+            position[1] += random.randint(-75, -25)
+
+            size = random.randint(3, 6)
+
+            particle = PolygonParticle(
+                self.index + 1, random.randint(45, 75),
+                [start, position],
+                [[[-size, size], [-size, -size], [size, -size], [size, size]], [[0, 0], [0, 0], [0, 0], [0, 0]]],
+                color=(200, 185, 120), beziers=['ease_out', 'ease_in'], delta_type=1, gravity=-1
+            )
+
+            particle.use_entity_surface = False
+            particles.append(particle)
+
+        game.particles.extend(particles)
+
+    def flip(self, dir=0, t=14, l=0):
         self.flip_dir = dir
         if dir == 0:
             Sfx.play('card_flip')
             self.flip_time = [-t, t]
         else:
+            Sfx.play('card_flip', 1.0 - 0.125 * l)
             self.flip_time = [t, t]
 
         self.flipping = True
@@ -148,7 +184,11 @@ class Card(Sprite):
                 if self.face != 1: 
                     self.face = 1
                     self.image = self.images[1]
-            
+
+                    if self.flip_dir == 0:
+                        if self.talent.rarity == 'rare':
+                            self.burst(game)
+
             if self.flip_dir == 0 and self.flip_time[0] > self.flip_time[1]:
                 self.flipping = False
             elif self.flip_dir != 0 and self.flip_time[0] < -self.flip_time[1]:
@@ -167,6 +207,12 @@ class Card(Sprite):
             if self.d_count <= 0:
                 game.ui.remove(self)
 
+        if self.image_pulse_frames[0] > 0:
+            if self.image_pulse_dt_time == 0:
+                self.image_pulse_frames[0] -= 1 * game.delta_time
+            else:
+                self.image_pulse_frames[0] -= 1 * game.raw_delta_time
+                
     def render(self, surface):
         image = self.image
         rect = self.rect
@@ -179,3 +225,9 @@ class Card(Sprite):
             rect = image.get_rect(center=self.rect.center)
 
         surface.blit(image, rect)
+
+        if self.image_pulse_frames[0] > 0:
+            pulse_image = pygame.mask.from_surface(image).to_surface(setcolor=self.image_pulse_color, unsetcolor=(0, 0, 0, 0))
+            pulse_image.set_alpha(255 * get_bezier_point((self.image_pulse_frames[0] / self.image_pulse_frames[1]), *self.image_pulse_bezier))
+
+            surface.blit(pulse_image, pulse_image.get_rect(center=self.rect.center))

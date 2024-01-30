@@ -345,9 +345,13 @@ class Game(object):
                     if event.key in self.player.keybinds['$interact']:
                         self.card_active = False
                         for card in self.cards:
-                            card.flip(1)
+                            card.flip(1, 14, len(self.cards))
 
-                        self.timers['card_select'] = [10, 1, self.on_card_select, []]
+                        color = (240, 240, 180) if self.card.talent.rarity == 'rare' else (255, 255, 255)
+                        self.card.image_pulse_color = color
+                        self.card.image_pulse_frames = [15, 15]
+
+                        self.timers['card_select'] = [15, 1, self.on_card_select, []]
 
                     else:
                         if event.key in self.player.keybinds['left']:
@@ -497,14 +501,6 @@ class Game(object):
 
             self.tilemap.render_b()
 
-        for particle in self.particles:
-            if particle.use_entity_surface:
-                if self.delta_time != 0 and particle.rect.colliderect(self.entity_rect):
-                    particle.render(self.entity_surface)
-                    
-            elif not particle.use_entity_surface:
-                particle.render(self.ui_display)
-
         if self.__debug_player_stats:
             for i, name in enumerate(['max_health', 'power', 'speed', 'focus']):
                 text = Fonts.create('m3x6', f'{name}: ~g{getattr(self.player, name)}~')
@@ -516,6 +512,14 @@ class Game(object):
                 ui.render(self.entity_surface)
             else:
                 ui.render(self.ui_display)
+
+        for particle in self.particles:
+            if particle.use_entity_surface:
+                if self.delta_time != 0 and particle.rect.colliderect(self.entity_rect):
+                    particle.render(self.entity_surface)
+                    
+            elif not particle.use_entity_surface:
+                particle.render(self.ui_display)
 
         self.ui_display.blit(self.fps_surface, self.fps_surface.get_rect(topright=(SCREEN_DIMENSIONS[0] - 5, 5)))
 
