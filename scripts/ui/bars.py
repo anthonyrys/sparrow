@@ -1,7 +1,47 @@
 from scripts.sprite import Sprite
 
+from scripts.utils import load_spritesheet, get_bezier_point
+
 import pygame
 import os
+
+class PlayerDashbar(Sprite):
+    def __init__(self, player, position, index):
+        surface = pygame.Surface((64, 12)).convert_alpha()
+        surface.set_colorkey((0, 0, 0))
+
+        super().__init__(position, surface, index)
+        self.use_entity_surface = True
+
+        self.player = player
+        self.cooldown = 90
+
+        self.frames = load_spritesheet(os.path.join('resources', 'images', 'ui', 'bars', 'dashbar.png'))
+
+        self.offset = [0, -50]
+
+    def update(self, game):
+        self.rect.centerx = self.player.rect.centerx + self.offset[0]
+        self.rect.centery = self.player.rect.centery + self.offset[1]
+
+    def render(self, surface):
+        if '@dash' not in self.player.cooldowns:
+            return
+
+        if self.player.dead:
+            return
+
+        abs_prog = self.player.cooldowns['@dash'] / self.cooldown
+
+        self.image.fill((0, 0, 0))
+
+        self.image.blit((self.frames[1]), self.frames[1].get_rect(center=self.image.get_rect().center))
+        pygame.gfxdraw.box(self.image, (4, 4, self.rect.width - 12 - self.rect.width * abs_prog, 4), (205, 247, 226))
+        
+        self.image.blit((self.frames[0]), (0, 0))
+        self.image.set_alpha(255 - 255 * get_bezier_point(1 - abs_prog, [0, 0], [0, 1], [0, 1], [1, 0], 0))
+
+        surface.blit(self.image, self.rect)
 
 class PlayerHealthbar(Sprite):
     def __init__(self, player, position, index):
@@ -9,7 +49,7 @@ class PlayerHealthbar(Sprite):
 
         self.player = player
 
-        self.image = pygame.image.load(os.path.join('resources', 'images', 'ui', 'heart-p.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('resources', 'images', 'ui', 'bars', 'heart-p.png')).convert_alpha()
         self.images = {}
         self.outlines = {}
 
@@ -78,7 +118,7 @@ class EnemyHealthbar(Sprite):
             'default_empty': ((50, 55, 65), (25, 30, 40))
         }
 
-        self.image = pygame.image.load(os.path.join('resources', 'images', 'ui', 'heart-e.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('resources', 'images', 'ui', 'bars', 'heart-e.png')).convert_alpha()
 
         for state in self.states:
             image = pygame.mask.from_surface(self.image).to_surface(setcolor=self.states[state][0], unsetcolor=(0, 0, 0, 0))

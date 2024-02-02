@@ -3,6 +3,7 @@ from scripts.mixer import Sfx
 from scripts.sprite import Sprite
 from scripts.fonts import Fonts
 
+from scripts.systems import TALENTS
 from scripts.utils import load_spritesheet, get_bezier_point, bezier_presets
 from scripts.visual_fx import PolygonParticle
 
@@ -48,7 +49,7 @@ class Card(Sprite):
     def load(self):
         # Icon
         try:
-            icon = pygame.image.load(os.path.join('resources', 'images', 'ui', 'card', f'icon-{self.talent.__name__.lower()}.png')).convert_alpha()
+            icon = pygame.image.load(os.path.join('resources', 'images', 'ui', 'card', self.talent.area, f'icon-{self.talent.__name__.lower()}.png')).convert_alpha()
         except FileNotFoundError:
             icon = pygame.image.load(os.path.join('resources', 'images', 'ui', 'card', f'icon-default.png')).convert_alpha()
 
@@ -135,7 +136,7 @@ class Card(Sprite):
         self.flipping = True
 
     def update(self, game):
-        selected = game.card == self and game.card_active
+        selected = game.card_manager.card == self and game.card_manager.active
         if not self.selected and selected:
             self.to_y = (self.position[1], self.selected_y)
             self.to_type = 'y'
@@ -231,3 +232,178 @@ class Card(Sprite):
             pulse_image.set_alpha(255 * get_bezier_point((self.image_pulse_frames[0] / self.image_pulse_frames[1]), *self.image_pulse_bezier))
 
             surface.blit(pulse_image, pulse_image.get_rect(center=self.rect.center))
+
+class CardManager(object):
+    def __init__(self, game):
+        self.game = game
+
+        self.active = False
+        self.flags = {'specific': TALENTS['generic']['common']['Evasiveness']}
+
+        self.in_cards = False
+        self.cards = []
+        self.card = None
+        self.card_i = 0
+
+    def on_key_down(self, key):
+        if not self.in_cards or not self.active:
+            return
+        
+        if key in self.game.player.keybinds['$interact']:
+            self.active = False
+            for card in self.cards:
+                card.flip(1, 14, len(self.cards))
+
+            color = (240, 240, 180) if self.card.talent.rarity == 'rare' else (255, 255, 255)
+            self.card.image_pulse_color = color
+            self.card.image_pulse_frames = [15, 15]
+
+            self.game.timers['card_select'] = [15, 1, self.select, []]
+
+        else:
+            if key in self.game.player.keybinds['left']:
+                self.card_i -= 1
+                if self.card_i < 0:
+                    self.card_i = len(self.cards) - 1
+
+            elif key in self.game.player.keybinds['right']:
+                self.card_i += 1
+                if self.card_i >= len(self.cards):
+                    self.card_i = 0
+
+            self.card = self.cards[self.card_i]
+
+    def on_key_up(self, key):
+        ...
+
+    def generate(self):
+        c_pool = list(TALENTS['generic']['common'].values())
+        r_pool = list(TALENTS['generic']['rare'].values())
+        s_pool = {}
+
+        for talent in self.game.player.talents:
+            s_pool[talent.__class__] = talent.stacks
+
+            if not talent.stackable:
+                if talent.rarity == 'rare':
+                    r_pool.remove(talent.__class__)
+                else:
+                    c_pool.remove(talent.__class__)
+            else:
+                if talent.stacks >= talent.stackable:
+                    if talent.rarity == 'rare':
+                        r_pool.remove(talent.__class__)
+                    else:
+                        c_pool.remove(talent.__class__)  
+
+        if self.flags['specific'] and self.flags['specific'] not in s_pool:
+            if self.flags['specific'].stackable:
+                s_pool[self.flags['specific']] = 0
+            
+        if len(c_pool) < 3:
+            return -1
+    
+        choices = []
+        has_rare = False
+
+        r_count = len(r_pool)
+        for _ in range(3):
+            if random.uniform(0, 1.0) <= TALENTS['R_RARITY'] and r_count > 0:
+                pool = r_pool
+                r_count -= 1
+
+                has_rare = True
+
+            else:
+                pool = c_pool
+
+            talent = random.choice(pool)
+            while talent in choices or talent == self.flags['specific']:
+                talent = random.choice(pool)
+            
+            if talent not in s_pool and talent.stackable:
+                s_pool[talent] = 0
+
+            choices.append(talent)
+
+        if self.flags['specific']:
+            choices.append(self.flags['specific'])
+
+        cards = tuple(Card((0, -500), 1, 0, c, s_pool.get(c, None)) for c in choices)
+
+        self.game.delta_time_multipliers['card_spawn'] = [0, False, [1, [0, 75], 'ease_in']]
+
+        self.game.dim_time = [0, 0]
+        self.game.to_dim = [0, 0]
+
+        self.game.timers['card_spawn_t'] = [50, 1, setattr, (self.game, 'dim_time', [0, 75])]
+        self.game.timers['card_spawn_db'] = [50, 1, setattr, (self.game, 'dim_bezier', bezier_presets['ease_out'])]
+        self.game.timers['card_spawn_td'] = [50, 1, setattr, (self.game, 'to_dim', [self.game.dim, .95])]
+
+        p = 50
+        x = (SCREEN_DIMENSIONS[0] / 2) - (sum(c.image.get_width() for c in cards) + (len(cards) - 1) * p) / 2
+
+        i = 0
+        for card in cards:
+            card.rect.x = x
+
+            card.to_time = [0, 80]
+            card.to_type = 'y'
+            card.to_y = (card.rect.y, (SCREEN_DIMENSIONS[1] / 2) - card.rect.height / 2)
+            
+            card.flip_count = 100 + i * 25
+
+            i += 1
+            x += card.image.get_width() + p
+
+        self.in_cards = True
+        self.cards = tuple(cards)
+
+        self.card_i = len(self.cards) // 2
+        self.card = self.cards[self.card_i]
+
+        self.game.timers['card_add'] = [100, 1, self.game.ui.extend, ([cards])]
+        self.game.timers['card_start'] = [200 + i * 25, 1, setattr, [self, 'active', True]]
+
+        return has_rare
+    
+    def select(self):
+        for card in self.cards:
+            card.to_time = [0, 60]
+            card.to_type = 'y'
+            card.to_bezier = bezier_presets['ease_in']
+            card.to_y = (card.rect.y, -500)
+
+            if self.card == card:
+                card.to_y = (card.rect.y, SCREEN_DIMENSIONS[1] + 50)
+
+            card.d_count = 60
+
+        self.in_cards = False
+
+        if self.card.talent == self.flags['specific']:
+            self.flags['specific'] = None
+
+        if self.card.talent.stackable:
+            found = False
+            for talent in self.game.player.talents:
+                if self.card.talent == talent.__class__:
+                    talent.stack()
+                    found = True
+                    break
+
+            if not found:
+                talent = self.card.talent(self.game.player)
+                self.game.player.talents.append(talent)
+
+        else:
+            talent = self.card.talent(self.game.player)
+            self.game.player.talents.append(talent)
+
+        del self.game.delta_time_multipliers['card_spawn']
+        self.game.delta_time_multipliers['card_select'] = [1, False, [0, [0, 75], 'ease_in']]
+
+        self.game.dim_time = [0, 50]
+        self.game.dim_bezier = bezier_presets['ease_in']
+
+        self.game.to_dim = [self.game.dim, 0]

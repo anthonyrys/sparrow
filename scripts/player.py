@@ -3,7 +3,7 @@ from scripts.mixer import Sfx
 from scripts.sprite import Sprite
 
 from scripts.systems import BOWS
-from scripts.ui import Dashbar, PlayerHealthbar
+from scripts.ui import PlayerDashbar, PlayerHealthbar
 from scripts.utils import get_bezier_point, bezier_presets, get_distance, load_spritesheet, clamp
 from scripts.visual_fx import PolygonParticle
 
@@ -130,7 +130,7 @@ class Player(Sprite):
 
         self.ui_elements = {
             'healthbar': PlayerHealthbar(self, (25, 25), self.index),
-            'dashbar': Dashbar(self, (0, 0), self.index)
+            'dashbar': PlayerDashbar(self, (0, 0), self.index)
         }
 
     def on_key_down(self, game, key):
@@ -724,7 +724,7 @@ class Player(Sprite):
         if self.level >= self.max_level:
             return
         
-        if game.in_cards:
+        if game.card_manager.in_cards:
             return
         
         # Experience curve graph: https://www.desmos.com/calculator/xfn2pzlckt
@@ -741,7 +741,7 @@ class Player(Sprite):
         # self.health += 1
         # self.power += 1 if self.level % 2 == 0 else 0
 
-        return_value = game.on_card_spawn()
+        return_value = game.card_manager.generate()
         if return_value == -1:
             return
 
