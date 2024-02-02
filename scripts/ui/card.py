@@ -238,7 +238,7 @@ class CardManager(object):
         self.game = game
 
         self.active = False
-        self.flags = {'specific': TALENTS['generic']['common']['Evasiveness']}
+        self.flags = {'specific': None}
 
         self.in_cards = False
         self.cards = []

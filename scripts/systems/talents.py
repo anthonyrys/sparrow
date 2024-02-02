@@ -133,7 +133,7 @@ class Vigor(Talent):
         self.player.max_health += 1
         self.player.health += 1
 
-class Evasiveness(Talent):
+class Reprieve(Talent):
     area = 'generic'
     rarity = 'common'
 
