@@ -5,30 +5,17 @@ import os
 
 class Fonts:
     FONT_PATH = os.path.join('resources', 'images', 'fonts')
-
-    FONT_KEYS = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', ':', ',', ';', '\'', '\"', '(', '!', '?', ')', '+', '-', '*', '/', '='
-    ]
+    FONT_KEYS = tuple(map(str, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!?,.;:\'\"/|\_()[]{}<>@#$%+-*=^&'))
 
     fonts = {
-        'default': {
-            'info': {
-                'key_spacing': [10, 32],
-                'key_padding': 5,
-
-                'key_specials': {
-                    'g': 11,
-                    'p': 11,
-                    'q': 11,
-                    'y': 11,
-
-                    ':': -4
-                }
-            },
-
+        'm3x6': {
+            'spacing': 2,
             'letters': {}
         }
+    }
+
+    colors = {
+        'g': (0, 200, 125),
     }
 
     def init():
@@ -40,30 +27,40 @@ class Fonts:
             for index, key in enumerate(Fonts.FONT_KEYS):
                 Fonts.fonts[name]['letters'][key] = images[index]
 
-    def create(font, text, size=.5, color=(255, 255, 255)):
-        text = str(text).lower()
-
+    def create(font, text, size=1, color=(255, 255, 255)):
         surface_size = [0, 0]
         images = []
+        current_color = None
 
-        for letter in text:
+        for i, letter in enumerate(str(text)):
+            if str(text)[i - 1] == '~':
+                if current_color:
+                    continue
+                
+            if letter == '~':
+                if not current_color:
+                    current_color = Fonts.colors[str(text)[i + 1]]
+                else:
+                    current_color = None
+
+                continue
+
             image = None
             if letter == ' ':
-                image = pygame.Surface((Fonts.fonts[font]['info']['key_spacing'][0], Fonts.fonts[font]['info']['key_spacing'][1])).convert_alpha()
+                image = pygame.Surface((Fonts.fonts[font]['spacing'] * 2, Fonts.fonts[font]['letters']['a'].get_height())).convert_alpha()
                 image.set_colorkey((0, 0, 0))
 
             else:
                 image = Fonts.fonts[font]['letters'][letter].copy()
 
-            surface_size[0] += image.get_width() + Fonts.fonts[font]['info']['key_padding']
+            surface_size[0] += (image.get_width() + Fonts.fonts[font]['spacing'])
             if image.get_height() > surface_size[1]:
-                surface_size[1] += image.get_height() * 2
+                surface_size[1] += image.get_height()
 
             image = pygame.transform.scale(image, (image.get_width() * size, image.get_height() * size)).convert_alpha()
-            image = pygame.mask.from_surface(image).to_surface(
-                setcolor=color,
-                unsetcolor=(0, 0, 0)
-            ).convert_alpha()
+            
+            c = color if not current_color else current_color
+            image = pygame.mask.from_surface(image).to_surface(setcolor=c, unsetcolor=(0, 0, 0)).convert_alpha()
 
             images.append(image)
 
@@ -71,13 +68,8 @@ class Fonts:
         surface.set_colorkey((0, 0, 0))
 
         x = 0
-        for image, letter in zip(images, text):
-            if letter in Fonts.fonts[font]['info']['key_specials'].keys():
-                surface.blit(image, (x, (Fonts.fonts[font]['info']['key_specials'][letter] * size)))
-                x += image.get_width() + (Fonts.fonts[font]['info']['key_padding'] * size)
-                continue
-
+        for image, letter in zip(images, str(text)):
             surface.blit(image, (x, 0))
-            x += image.get_width() + (Fonts.fonts[font]['info']['key_padding'] * size)
+            x += image.get_width() + (Fonts.fonts[font]['spacing'] * size)
 
         return surface

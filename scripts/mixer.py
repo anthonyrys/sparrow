@@ -6,12 +6,17 @@ class Sfx:
     SETTINGS = {}
 
     STATIC_VOLUMES = {
+        'arrow_collide-e': 0.6,
+        'arrow_collide-t': 0.6,
+
+        'card_flip': 0.3,
+        
         'player_hurt': 0.7,
         'player_land': 0.7,
         'player_death': 0.7,
 
-        'arrow_collide-e': 0.6,
-        'arrow_collide-t': 0.6
+        'menu_forward': 0.4,
+        'menu_back': 0.4
     }
 
     def init():

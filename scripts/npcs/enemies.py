@@ -30,13 +30,15 @@ class Enemy(Sprite):
 
         self.gravity = [0, 0]
 
-        self.max_health = 0
-        self.health = 0
+        self.level = 0
 
         # Stats
+        self.max_health = 0
+        self.health = 0
         self.power = 0
-        self.weight = 0
+
         self.knockback = 0
+        self.weight = 0
 
         self.attack_cooldown = 0
         self.attack_cooldown_limit = 60
@@ -65,7 +67,7 @@ class Enemy(Sprite):
         self.image_pulse_color = (255, 84, 84)
 
         if self.weight != -1:
-            self.velocity[0] = knockback * 2 / self.weight
+            self.velocity[0] = knockback * 2 / (self.weight + 1)
 
         if self.health <= 0:
             self.on_death(game)
@@ -74,7 +76,8 @@ class Enemy(Sprite):
 
     def on_death(self, game):
         game.enemies[1].remove(self)
-
+        game.player.on_experience(self.level)
+        
         # Particles
         particles = []
 
@@ -145,11 +148,13 @@ class Target(Enemy):
 
         self.enemy_type = 'stationary'
 
+        self.level = 1
+        
         self.max_health = 3
         self.health = self.max_health
-
         self.power = 1
-        self.weight = -1
+
         self.knockback = 3
+        self.weight = -1
 
 ENEMIES = generate_import_dict('Enemy')

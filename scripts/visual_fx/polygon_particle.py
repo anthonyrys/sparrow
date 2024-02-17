@@ -8,14 +8,15 @@ import pygame.gfxdraw
 class PolygonParticle(Sprite):
     def __init__(self, index, time, positions, points,
                  beziers=['linear', 'linear'], rotation=0, color=(255, 255, 255),
-                 focus=None, delta_type=0, gravity=0):
+                 anchor=None, delta_type=0, gravity=0):
 
         super().__init__(positions[0], pygame.Surface((1, 1)), index)
 
         self.current_time, self.end_time = 0, time
         self.delta_type = delta_type
 
-        self.focus = focus
+        self.anchor = anchor
+        self.use_entity_surface = True
 
         self.start_position = [positions[0][0], positions[0][1]]
         self.end_position =  [positions[1][0], positions[1][1]]
@@ -57,8 +58,8 @@ class PolygonParticle(Sprite):
         self.current_position[1] = self.start_position[1] + ((self.end_position[1] - self.start_position[1]) * get_bezier_point(abs_prog, *self.position_bezier))
         self.current_position[1] += self.gravity
 
-        if self.focus:
-            position = self.focus[0].get_position(self.focus[1])
+        if self.anchor:
+            position = self.anchor[0].get_position(self.anchor[1])
             self.current_position[0] += position[0]
             self.current_position[1] += position[1]
 

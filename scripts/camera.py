@@ -6,10 +6,10 @@ import pygame
 import random
 
 class Camera(object):
-    def __init__(self, focus=None):
-        self.focus_parent = focus
-        self.focus_alert = True
-        self.focus = None
+    def __init__(self, anchor=None):
+        self.anchor_parent = anchor
+        self.anchor_alert = True
+        self.anchor = None
 
         self.offset = pygame.Vector2()
         self.to_offset = pygame.Vector2()
@@ -37,22 +37,22 @@ class Camera(object):
         self.camera_shake_intensity = intensity
 
     def update(self, game):
-        if self.focus != self.focus_parent.rect:
-            self.focus = self.focus_parent.rect
-            self.focus_alert = True
+        if self.anchor != self.anchor_parent.rect:
+            self.anchor = self.anchor_parent.rect
+            self.anchor_alert = True
 
-        if self.focus:
-            if self.focus.left < self.box.left:
-                self.box.left = self.focus.left
+        if self.anchor:
+            if self.anchor.left < self.box.left:
+                self.box.left = self.anchor.left
 
-            elif self.focus.right > self.box.right:
-                self.box.right = self.focus.right
+            elif self.anchor.right > self.box.right:
+                self.box.right = self.anchor.right
 
-            if self.focus.bottom > self.box.bottom:
-                self.box.bottom = self.focus.bottom
+            if self.anchor.bottom > self.box.bottom:
+                self.box.bottom = self.anchor.bottom
 
-            elif self.focus.top < self.box.top:
-                self.box.top = self.focus.top
+            elif self.anchor.top < self.box.top:
+                self.box.top = self.anchor.top
 
         shake = [0, 0]
         if self.camera_shake_frames[0] > 0 and game.delta_time != 0:
@@ -77,14 +77,14 @@ class Camera(object):
                 self.camera_tween_position[1] + ((self.to_offset[0] - self.camera_tween_position[1]) * get_bezier_point(abs_prog, *self.camera_tween_bezier))
             ]
 
-            self.camera_tween_frames[0] += 1 * game.raw_delta_time
+            self.camera_tween_frames[0] += 1 * game.delta_time
 
             self.offset = tweened_offset
             self.offset[0] += shake[0]
             self.offset[1] += shake[1]
 
         else:
-            self.offset += (self.to_offset - self.offset) * .08 * game.raw_delta_time
+            self.offset += (self.to_offset - self.offset) * .08 * game.delta_time
             self.offset[0] += shake[0]
             self.offset[1] += shake[1]
 

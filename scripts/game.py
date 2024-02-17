@@ -1,17 +1,20 @@
 from scripts import FRAME_RATE, SCREEN_DIMENSIONS
 from scripts.camera import Camera
 from scripts.fonts import Fonts
+from scripts.mixer import Sfx
 from scripts.mouse import Mouse
 from scripts.player import Player
 from scripts.sprites import Sprites
-from scripts.tilemap import TilemapRenderer
 
 from scripts.npcs import ENEMIES
-from scripts.utils import clamp, get_distance
+from scripts.tilemap import TilemapRenderer
+from scripts.ui import CardManager, PlayerMenu
+from scripts.utils import Easing, clamp, get_distance, bezier_presets, get_bezier_point
 
 import moderngl
 import pygame
 import pygame.gfxdraw
+import random
 import array
 import time
 import os
@@ -71,6 +74,10 @@ class Game(object):
 
         self.entity_display = pygame.Surface(SCREEN_DIMENSIONS)
 
+        self.dim = 0
+
+        self.easing = Easing()
+
         self.ui_display = pygame.Surface(SCREEN_DIMENSIONS).convert_alpha()
         self.ui_display.set_colorkey((0, 0, 0))
 
@@ -83,6 +90,15 @@ class Game(object):
 
         self.player = Player((0, 0), 0)
         self.camera = Camera(self.player)
+
+        self.card_manager = CardManager(self)
+
+        self.menus = {
+            'player': PlayerMenu(self)
+        }
+
+        self.in_cards = False
+        self.in_menu = False
 
         self.enemies = [{}, Sprites()]
         self.enemy_spawns = {}
@@ -106,9 +122,6 @@ class Game(object):
 
         self.load_tilemap(self.area)
 
-        # Debugging
-        self._debug_show_player_chunks = False
-
     def on_player_respawn(self):
         self.player.dead = False
 
@@ -122,7 +135,7 @@ class Game(object):
         self.player.dead = True
 
         self.camera.set_camera_shake(120)
-        self.timers['player_respawn'] = [180, 1, self.on_player_respawn, []]
+        self.timers['player_respawn'] = [180, 0, self.on_player_respawn, []]
 
     def load_tilemap(self, tilemap):
         self.tilemap.load(tilemap)
@@ -139,7 +152,8 @@ class Game(object):
             vertex_shader=self.shaders['vert']['main'],
             fragment_shader=self.shaders['frag']['main']
         )
-
+        
+        self.programs['main']['dim_f'] = 0
         self.programs['main']['entity'] = 0
         self.programs['main']['ui'] = 1
 
@@ -188,13 +202,20 @@ class Game(object):
                 if event.key == pygame.K_ESCAPE:
                     quit = True
 
-                if event.key == pygame.K_1:
-                    self._debug_show_player_chunks = not self._debug_show_player_chunks
+                self.card_manager.on_key_down(event.key)
+                for menu in self.menus.values():
+                    menu.on_key_down(event.key)
 
-                self.player.on_key_down(self, event.key)
+                if self.delta_time != 0:
+                    self.player.on_key_down(self, event.key)
 
             if event.type == pygame.KEYUP:
-                self.player.on_key_up(self, event.key)
+                self.card_manager.on_key_up(event.key)
+                for menu in self.menus.values():
+                    menu.on_key_up(event.key)
+
+                if self.delta_time != 0:
+                    self.player.on_key_up(self, event.key)
 
         self.delta_time = max(0, min((time.time() - self.last_time) * FRAME_RATE, 6))
         self.raw_delta_time = self.delta_time
@@ -203,6 +224,22 @@ class Game(object):
         multiplier = 1
         dels = []
         for delta_multiplier in self.delta_time_multipliers.keys():
+            if len(self.delta_time_multipliers[delta_multiplier]) >= 3:
+                if self.delta_time_multipliers[delta_multiplier][2][1][0] < self.delta_time_multipliers[delta_multiplier][2][1][1]:
+                    abs_prog = self.delta_time_multipliers[delta_multiplier][2][1][0] / self.delta_time_multipliers[delta_multiplier][2][1][1]
+                    point = get_bezier_point(abs_prog, *bezier_presets[self.delta_time_multipliers[delta_multiplier][2][2]])
+
+                    dist = self.delta_time_multipliers[delta_multiplier][2][0] - self.delta_time_multipliers[delta_multiplier][0]
+                    self.delta_time_multipliers[delta_multiplier][0] = self.delta_time_multipliers[delta_multiplier][0] + dist * point
+                    self.delta_time_multipliers[delta_multiplier][2][1][0] += 1 * self.raw_delta_time
+
+                elif self.delta_time_multipliers[delta_multiplier][2][1][0] > self.delta_time_multipliers[delta_multiplier][2][1][1]:
+                    self.delta_time_multipliers[delta_multiplier][2][1][0] = self.delta_time_multipliers[delta_multiplier][2][1][1]
+                    self.delta_time_multipliers[delta_multiplier][0] = self.delta_time_multipliers[delta_multiplier][2][0]
+
+                    if self.delta_time_multipliers[delta_multiplier][0] == 0:
+                        dels.append(delta_multiplier)
+
             if not self.delta_time_multipliers[delta_multiplier][1]:
                 multiplier -= self.delta_time_multipliers[delta_multiplier][0]
                 continue
@@ -215,7 +252,15 @@ class Game(object):
         for delta_dels in dels:
             del self.delta_time_multipliers[delta_dels]
 
-        self.delta_time *= clamp(multiplier, 0, 1)
+        if self.in_menu:
+            self.delta_time = 0
+        else:
+            self.delta_time *= clamp(multiplier, 0, 1)
+
+        self.easing.update(self)
+
+        for menu in self.menus.values():
+            menu.update()
 
         del_timers = []
         for timer in self.timers:
@@ -244,20 +289,26 @@ class Game(object):
         for del_queue in del_queues:
             self.particle_queue.remove(del_queue)
 
-        self.tilemap.update()
+        if self.delta_time != 0:
+            self.tilemap.update()
 
-        self.update_enemyspawns()
+            self.update_enemyspawns()
 
-        for enemy in self.enemies[1]:
-            enemy.update(self)
+            for enemy in self.enemies[1]:
+                enemy.update(self)
 
-        for projectile in self.projectiles:
-            projectile.update(self)
+            for projectile in self.projectiles:
+                projectile.update(self)
 
         for particle in self.particles:
-            particle.update(self)
+            if particle.use_entity_surface and self.delta_time != 0:
+                particle.update(self)
 
-        self.player.update(self)
+            elif not particle.use_entity_surface:
+                particle.update(self)
+
+        if self.delta_time != 0:
+            self.player.update(self)
 
         for ui in self.ui:
             ui.update(self)
@@ -271,34 +322,29 @@ class Game(object):
         self.fps_clock[0] += 1 * self.raw_delta_time
         if self.fps_clock[0] >= self.fps_clock[1]:
             self.fps_clock[0] = 0
-            self.fps_surface = Fonts.create('default', round(self.clock.get_fps()))
+            self.fps_surface = Fonts.create('m3x6', round(self.clock.get_fps()), 1.5)
 
         return quit
 
     def render(self):
-        self.entity_surface.fill((0, 0, 0), self.entity_rect)
-        self.entity_display.fill((0, 0, 0))
+        if self.delta_time != 0:
+            self.entity_surface.fill((0, 0, 0), self.entity_rect)
+            self.entity_display.fill((0, 0, 0))
+
         self.ui_display.fill((0, 0, 0))
 
-        self.tilemap.render_a()
+        if self.delta_time != 0:
+            self.tilemap.render_a()
 
-        for projectile in [p for p in self.projectiles if p.rect.colliderect(self.entity_rect)]:
-            projectile.render(self.entity_surface)
+            for projectile in [p for p in self.projectiles if p.rect.colliderect(self.entity_rect)]:
+                projectile.render(self.entity_surface)
 
-        for enemy in self.enemies[1]:
-            enemy.render(self.entity_surface)
+            for enemy in self.enemies[1]:
+                enemy.render(self.entity_surface)
 
-        self.player.render(self.entity_surface)
+            self.player.render(self.entity_surface)
 
-        self.tilemap.render_b()
-
-        if self._debug_show_player_chunks:
-            for c in self.player.current_chunks:
-                for tile in self.tilemap.chunks[c]:
-                    pygame.gfxdraw.filled_circle(self.entity_surface, round(tile.rect.centerx), round(tile.rect.centery), 4, (255, 0, 0))
-
-        for particle in [p for p in self.particles if p.rect.colliderect(self.entity_rect)]:
-            particle.render(self.entity_surface)
+            self.tilemap.render_b()
 
         for ui in self.ui:
             if hasattr(ui, 'use_entity_surface'):
@@ -306,9 +352,23 @@ class Game(object):
             else:
                 ui.render(self.ui_display)
 
-        self.ui_display.blit(self.fps_surface, self.fps_surface.get_rect(topright=(SCREEN_DIMENSIONS[0] - 5, 5)))
-        self.entity_display.blit(self.entity_surface, self.camera.offset)
+        for menu in self.menus.values():
+            menu.render(self.ui_display)
 
+        for particle in self.particles:
+            if particle.use_entity_surface:
+                if self.delta_time != 0 and particle.rect.colliderect(self.entity_rect):
+                    particle.render(self.entity_surface)
+                    
+            elif not particle.use_entity_surface:
+                particle.render(self.ui_display)
+
+        self.ui_display.blit(self.fps_surface, self.fps_surface.get_rect(topright=(SCREEN_DIMENSIONS[0] - 5, 5)))
+
+        if self.delta_time != 0:
+            self.entity_display.blit(self.entity_surface, self.camera.offset)
+
+        self.programs['main']['dim_f'].value = self.dim
         self.textures['entity'].write(self.entity_display.get_view('1'))
         self.textures['ui'].write(self.ui_display.get_view('1'))
 

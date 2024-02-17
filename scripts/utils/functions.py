@@ -1,4 +1,5 @@
 import inspect
+import pygame
 import math
 import sys
 
@@ -17,6 +18,11 @@ def generate_import_dict(*excludes):
     return {
         k: v for k, v in (c for c in inspect.getmembers(name, inspect.isclass) if c[0] not in excludes and c[0] not in defaults)
     }
+
+# Pygame
+def scale(image, sx, sy=None):
+    if not sy: sy = sx
+    return pygame.transform.scale(image, (image.get_width() * sx, image.get_height() * sy)).convert_alpha()
 
 # Math
 def clamp(v, mi, mx):

@@ -1,9 +1,9 @@
-from scripts.fonts import Fonts
+from scripts import GLOBAL_EXPERIENCE_CURVE, GLOBAL_STAT_CURVE
 from scripts.mixer import Sfx
 from scripts.sprite import Sprite
 
 from scripts.systems import BOWS
-from scripts.ui import Dashbar, PlayerHealthbar
+from scripts.ui import PlayerDashbar, PlayerHealthbar
 from scripts.utils import get_bezier_point, bezier_presets, get_distance, load_spritesheet, clamp
 from scripts.visual_fx import PolygonParticle
 
@@ -33,6 +33,8 @@ class Player(Sprite):
             '@jump': [pygame.K_UP],
             '@dash': [pygame.K_z],
 
+            '@player_menu': [pygame.K_TAB],
+
             # Keydown/Keyup
             '$interact': [pygame.K_x]
         }
@@ -58,16 +60,24 @@ class Player(Sprite):
         self.dashes = [1, 1]
         self.dash_cooldown = 90
 
+        self.level = 1
+        self.max_level = 15
+        self.experience = 0
+
+        # Primary Stats
         self.max_health = 5
         self.max_health_cap = 110
         self.health = self.max_health
-
-        # Stats
-        self.power = 1
-        self.weight = 1
+        self.power = 0
+        
+        # Secondary Stats
         self.speed = 0
         self.focus = 0
-        
+        self.knockback = 0
+        self.weight = 0
+
+        self.talents = []
+
         self.iframes = 0
 
         self.dead = False
@@ -122,7 +132,7 @@ class Player(Sprite):
 
         self.ui_elements = {
             'healthbar': PlayerHealthbar(self, (25, 25), self.index),
-            'dashbar': Dashbar(self, (0, 0), self.index)
+            'dashbar': PlayerDashbar(self, (0, 0), self.index)
         }
 
     def on_key_down(self, game, key):
@@ -285,22 +295,28 @@ class Player(Sprite):
         self.cooldowns['@dash'] = self.dash_cooldown
         self.dashes[0] -= 1
 
+        self.call_talents(game, 'on_dash')
+
+        # Speed curve graph: https://www.desmos.com/calculator/7rtyebqf91
+        speed = round(0.5 * self.speed / (self.speed + GLOBAL_STAT_CURVE), 2)
+        max_move_speed = self.move_speed[1] * (1 + speed)
+
         if self.inputs['left'] and self.inputs['right']:
             if self.tinput == 'left':
-                self.velocity[0] = -self.move_speed[1] * 2
+                self.velocity[0] = -max_move_speed * 2
             elif self.tinput == 'right':
-                self.velocity[0] = self.move_speed[1] * 2
+                self.velocity[0] = max_move_speed * 2
         elif self.inputs['left']:
-            self.velocity[0] = -self.move_speed[1] * 2
+            self.velocity[0] = -max_move_speed * 2
         elif self.inputs['right']:
-            self.velocity[0] = self.move_speed[1] * 2
+            self.velocity[0] = max_move_speed * 2
         else:
             self.velocity[0] = 0
 
         if self.inputs['up']:
-            self.velocity[1] = -self.move_speed[1]
+            self.velocity[1] = -max_move_speed
         elif self.inputs['down']:
-            self.velocity[1] = self.move_speed[1]
+            self.velocity[1] = max_move_speed
         else:
             self.velocity[1] = 0
 
@@ -332,76 +348,25 @@ class Player(Sprite):
         if self.iframes > 0:
             return False
 
-        self.iframes = 30
+        info = {'iframe_multiplier': 1}
+        info = self.call_talents(game, 'on_damaged', info)
+
+        self.iframes = 60 * info['iframe_multiplier']
 
         self.health -= damage
         self.health = clamp(self.health, 0, self.max_health)
 
-        self.image_pulse_frames = [60, 60]
+        self.image_pulse_frames = [30, 30]
         self.image_pulse_color = (255, 84, 84)
 
         # Dead
         if self.health == 0:
-            self.bow.state = 0
-            self.bow.pre_charge = 0
-            self.bow.charged = False
-
-            self.move_restriction = 0
-            game.camera.direction_offset = 0
-
-            game.delta_time_multipliers['player_dead'] = [1, 30]
-            game.timers['player_dead_call'] = [30, 1, game.on_player_death, []]
-            game.timers['player_dead_sfx'] = [30, 1, Sfx.play, ['player_death']]
-
-            # Particles
-            particles = []
-
-            position = self.get_position('center')
-            for color in self.dead_colors:
-                for _ in range(random.randint(1, 2)):
-                    new_position = [*position]
-                    new_position[0] += random.randint(-250, 250)
-                    new_position[1] += random.randint(-250, -150)
-
-                    size = random.randint(5, 8)
-                    particle = PolygonParticle(
-                        self.index + 1, random.randint(90, 120),
-                        [position, new_position],
-                        [[[-size, size], [-size, -size], [size, -size], [size, size]], [[0, 0], [0, 0], [0, 0], [0, 0]]],
-                        color=color, beziers=['ease_out', 'ease_in'], gravity=random.uniform(1.25, 2)
-                    )
-
-                    particles.append([1, particle])
-
-            x, y = 15, 5
-            p_info = [[300, 0], [-300, 0], [0, 300], [0, -300]]
-            points = [
-                [[-x, 0], [-x // 10, -y], [x // 10, -y], [x, 0], [x // 10, y], [-x // 10, y]],
-                [[-x * 1.5, 0], [-x // 10, 0], [x // 10, 0], [x * 1.5, 0], [x // 10, 0], [-x // 10, 0]]
-            ]
-
-            for i in p_info:
-                new_position = [*position]
-                new_position[0] += i[0]
-                new_position[1] += i[1]
-
-                rot = math.degrees(math.atan2(new_position[0] - position[0], -(new_position[1] - position[1]))) - 90
-                particle = PolygonParticle(
-                    self.index + 1, 105,
-                    [position, new_position],
-                    points,
-                    color=(255, 255, 255), beziers=['ease_out', 'ease_out'], rotation=rot
-                )
-
-                particles.append([1, particle])
-
-            game.particle_queue.extend(particles)
-
+            self.on_death(game)
             return True
 
         self.events['damaged'] = 30
 
-        self.velocity[0] = knockback * 2 / self.weight
+        self.velocity[0] = knockback * 2 / (self.weight + 1)
         self.velocity[1] = self.jump_power // 2
 
         game.delta_time_multipliers['player_damaged'] = [1, 15]
@@ -432,10 +397,70 @@ class Player(Sprite):
 
         return True
 
+    def on_death(self, game):
+        self.bow.state = 0
+        self.bow.pre_charge = 0
+        self.bow.charged = False
+
+        self.move_restriction = 0
+        game.camera.direction_offset = 0
+
+        game.delta_time_multipliers['player_dead'] = [1, 30]
+        game.timers['player_dead_call'] = [30, 1, game.on_player_death, []]
+        game.timers['player_dead_sfx'] = [30, 1, Sfx.play, ['player_death']]
+
+        # Particles
+        particles = []
+
+        position = self.get_position('center')
+        for color in self.dead_colors:
+            for _ in range(random.randint(1, 2)):
+                new_position = [*position]
+                new_position[0] += random.randint(-250, 250)
+                new_position[1] += random.randint(-250, -150)
+
+                size = random.randint(5, 8)
+                particle = PolygonParticle(
+                    self.index + 1, random.randint(90, 120),
+                    [position, new_position],
+                    [[[-size, size], [-size, -size], [size, -size], [size, size]], [[0, 0], [0, 0], [0, 0], [0, 0]]],
+                    color=color, beziers=['ease_out', 'ease_in'], gravity=random.uniform(1.25, 2)
+                )
+
+                particles.append([1, particle])
+
+        x, y = 15, 5
+        p_info = [[300, 0], [-300, 0], [0, 300], [0, -300]]
+        points = [
+            [[-x, 0], [-x // 10, -y], [x // 10, -y], [x, 0], [x // 10, y], [-x // 10, y]],
+            [[-x * 1.5, 0], [-x // 10, 0], [x // 10, 0], [x * 1.5, 0], [x // 10, 0], [-x // 10, 0]]
+        ]
+
+        for i in p_info:
+            new_position = [*position]
+            new_position[0] += i[0]
+            new_position[1] += i[1]
+
+            rot = math.degrees(math.atan2(new_position[0] - position[0], -(new_position[1] - position[1]))) - 90
+            particle = PolygonParticle(
+                self.index + 1, 105,
+                [position, new_position],
+                points,
+                color=(255, 255, 255), beziers=['ease_out', 'ease_out'], rotation=rot
+            )
+
+            particles.append([1, particle])
+
+        game.particle_queue.extend(particles)
+
+    def on_experience(self, amount):
+        if self.level < self.max_level:
+            self.experience += amount 
+
     def update_inputs(self):
         keys = pygame.key.get_pressed()
 
-        for action in [a for a in self.inputs.keys() if a[0] != '@']:
+        for action in [a for a in self.inputs.keys() if a[0].isalpha()]:
             self.inputs[action] = False
 
             if not isinstance(self.keybinds[action], list):
@@ -453,42 +478,47 @@ class Player(Sprite):
         if 'movement_override' in self.events:
             return
 
+        # Speed curve graph: https://www.desmos.com/calculator/7rtyebqf91
+        speed = round(0.5 * self.speed / (self.speed + GLOBAL_STAT_CURVE), 2)
+        move_speed = self.move_speed[0] * (1 + speed)
+        max_move_speed = self.move_speed[1] * (1 + speed)
+
         # X velocity
-        if self.velocity[0] > self.move_speed[1] - self.move_restriction:
-            if abs(self.velocity[0]) - self.move_speed[0] < self.move_friction:
-                self.velocity[0] -= abs(self.velocity[0]) - self.move_speed[0]
+        if self.velocity[0] > max_move_speed - self.move_restriction:
+            if abs(self.velocity[0]) - move_speed < self.move_friction:
+                self.velocity[0] -= abs(self.velocity[0]) - move_speed
 
             else:
                 self.velocity[0] -= self.move_friction * game.delta_time
 
-        elif self.velocity[0] < -self.move_speed[1] + self.move_restriction:
-            if abs(self.velocity[0]) - self.move_speed[0] < self.move_friction:
-                self.velocity[0] += abs(self.velocity[0]) - self.move_speed[0]
+        elif self.velocity[0] < -max_move_speed + self.move_restriction:
+            if abs(self.velocity[0]) - move_speed < self.move_friction:
+                self.velocity[0] += abs(self.velocity[0]) - move_speed
 
             else:
                 self.velocity[0] += self.move_friction * game.delta_time
 
         if 'damaged' not in self.events:
             if self.inputs['right'] and not self.inputs['left']:
-                self.velocity[0] += self.move_speed[0] * game.delta_time if self.velocity[0] < self.move_speed[1] - self.move_restriction else 0
+                self.velocity[0] += move_speed * game.delta_time if self.velocity[0] < max_move_speed - self.move_restriction else 0
 
             elif self.inputs['left'] and not self.inputs['right']:
-                self.velocity[0] -= self.move_speed[0] * game.delta_time if self.velocity[0] > -self.move_speed[1] + self.move_restriction else 0
+                self.velocity[0] -= move_speed * game.delta_time if self.velocity[0] > -max_move_speed + self.move_restriction else 0
 
             if self.inputs['right'] and self.inputs['left']:
                 if self.tinput == 'left':
-                    self.velocity[0] += self.move_speed[0] * game.delta_time if self.velocity[0] < self.move_speed[1] - self.move_restriction else 0
+                    self.velocity[0] += move_speed * game.delta_time if self.velocity[0] < max_move_speed - self.move_restriction else 0
                 elif self.tinput == 'right':
-                    self.velocity[0] -= self.move_speed[0] * game.delta_time if self.velocity[0] > -self.move_speed[1] + self.move_restriction else 0
+                    self.velocity[0] -= move_speed * game.delta_time if self.velocity[0] > -max_move_speed + self.move_restriction else 0
 
             if not self.inputs['right'] and not self.inputs['left']:
                 if self.velocity[0] > 0:
-                    self.velocity[0] -= self.move_speed[0] * .5 * game.delta_time
+                    self.velocity[0] -= move_speed * .5 * game.delta_time
 
                 elif self.velocity[0] < 0:
-                    self.velocity[0] += self.move_speed[0] * .5 * game.delta_time
+                    self.velocity[0] += move_speed * .5 * game.delta_time
 
-        if abs(self.velocity[0]) < self.move_speed[0] * game.delta_time:
+        if abs(self.velocity[0]) < move_speed * game.delta_time:
             self.velocity[0] = 0
 
         if 'damaged' not in self.events:
@@ -611,6 +641,9 @@ class Player(Sprite):
                     self.velocity[1] = 0
 
     def update_states(self, game):
+        if game.delta_time <= 0.01:
+            return
+        
         # Animations
         if 'dashed' in self.events:
             self.animation_state = 'dash'
@@ -679,10 +712,46 @@ class Player(Sprite):
                 self.animation_frames[0][frame] = 0
                 self.animation_frames[1][frame] = 0
 
+        if self.iframes > 0:
+            image.set_alpha(100)
+        elif image.get_alpha() == 100:
+            image.set_alpha(255)
+
         self.image = pygame.transform.flip(image, True, False).convert_alpha() if self.direction < 0 else image
 
     def update_targets(self, game):
         ...
+
+    def update_level(self, game):
+        if self.level >= self.max_level:
+            return
+        
+        if game.in_cards:
+            return
+        
+        # Experience curve graph: https://www.desmos.com/calculator/xfn2pzlckt
+        expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
+        
+        if self.experience < expreq:
+            return
+        
+        self.level += 1
+        self.experience -= expreq
+
+        # self.max_health += 1
+        # self.health += 1
+        # self.power += 1 if self.level % 2 == 0 else 0
+
+        return_value = game.card_manager.generate()
+        if return_value == -1:
+            return
+
+    def call_talents(self, game, flag, info={}):
+        for talent in self.talents:
+            if flag in talent.flags:
+                info = talent.call(game, info)
+        
+        return info
 
     def update(self, game):
         if self.dead:
@@ -715,6 +784,11 @@ class Player(Sprite):
         self.update_image(game)
         
         self.update_targets(game)
+        self.update_level(game)
+
+        for talent in self.talents:
+            if talent.active:
+                talent.update(game)
 
         self.max_health = clamp(self.max_health, 1, self.max_health_cap)
         self.health = clamp(self.health, 0, self.max_health)
