@@ -4,12 +4,13 @@ from scripts.sprite import Sprite
 from scripts.fonts import Fonts
 
 from scripts.systems import TALENTS
-from scripts.utils import load_spritesheet, get_bezier_point, bezier_presets
+from scripts.utils import load_spritesheet, bezier_presets, get_bezier_point, scale
 from scripts.visual_fx import PolygonParticle
 
 import pygame
 import random
 import os
+import re
 
 class Card(Sprite):
     def __init__(self, position, index, face, talent, stacks):
@@ -22,13 +23,7 @@ class Card(Sprite):
         self.talent = talent
         self.talent_stacks = stacks
 
-        self.load()
-
-        self.to_time = [0, 0]
-        self.to_type = None
-        self.to_bezier = bezier_presets['ease_out']
-        self.to_x = (0, 0)
-        self.to_y = (0, 0)
+        self.cache = self.load()
 
         self.flipping = False
         self.flip_count = 0
@@ -47,23 +42,30 @@ class Card(Sprite):
         self.d_count = None
 
     def load(self):
+        cache = {} 
+        cache['talent'] = self.talent
+
         # Icon
         try:
             icon = pygame.image.load(os.path.join('resources', 'images', 'ui', 'card', self.talent.area, f'icon-{self.talent.__name__.lower()}.png')).convert_alpha()
         except FileNotFoundError:
             icon = pygame.image.load(os.path.join('resources', 'images', 'ui', 'card', f'icon-default.png')).convert_alpha()
 
-        icon = pygame.transform.scale(icon, (icon.get_width() * 4, icon.get_height() * 4))
+        icon = scale(icon, 4)
         center = [self.images[1].get_width() / 2, 122]
         if self.talent.rarity == 'rare':
             center[1] += 21
 
         self.images[1].blit(icon, icon.get_rect(center=center))
+        cache['icon'] = icon
 
         # Title
-        string = ''.join(map(lambda x: x if x.islower() else " " + x, self.talent.__name__))
+        string = ''.join(map(lambda x: x if x.islower() else ' ' + x, self.talent.__name__)).lstrip()
+
+        cache['stacks'] = None
         if self.talent_stacks != None:
             string += f' {["I", "II", "III", "IV", "V"][self.talent_stacks]}'
+            cache['stacks'] = self.talent_stacks + 1
 
         title = Fonts.create('m3x6', string, 1, (53, 52, 65))
         center = [self.images[1].get_width() / 2, 42]
@@ -71,6 +73,8 @@ class Card(Sprite):
             center[1] += 22
 
         self.images[1].blit(title, title.get_rect(midtop=center))
+
+        cache['name'] = string
 
         # Label
         string = self.talent.category[0].upper()
@@ -83,6 +87,7 @@ class Card(Sprite):
             center[1] += 23
 
         self.images[1].blit(label, label.get_rect(midtop=center))    
+        cache['label'] = label
 
         # Description
         descriptions = self.talent.description.split(';')
@@ -90,11 +95,15 @@ class Card(Sprite):
         if self.talent.rarity == 'rare':
             center[1] += 23
 
+        cache['description'] = []
         for description in descriptions:
-            surface = Fonts.create('m3x6', description, 1, (53, 52, 65))
+            cache['description'].append(description)
+            surface = Fonts.create('m3x6', re.sub(r'<|>', '', description), 1, (53, 52, 65))
 
             self.images[1].blit(surface, surface.get_rect(midtop=center)) 
             center[1] += surface.get_height() + 6
+
+        return cache
 
     def burst(self, game):
         # Particles
@@ -138,37 +147,12 @@ class Card(Sprite):
     def update(self, game):
         selected = game.card_manager.card == self and game.card_manager.active
         if not self.selected and selected:
-            self.to_y = (self.position[1], self.selected_y)
-            self.to_type = 'y'
-            self.to_time = [0, 15]
+            game.easing.create((self.rect, 'y'), self.selected_y, 15, 'ease_out', 1)
 
         elif self.selected and not selected:
-            self.to_y = (self.position[1], self.deselected_y)
-            self.to_type = 'y'
-            self.to_time = [0, 15]
+            game.easing.create((self.rect, 'y'), self.deselected_y, 15, 'ease_out', 1)
 
         self.selected = selected
-
-        if self.to_time[0] < self.to_time[1]:
-            abs_prog = self.to_time[0] / self.to_time[1]
-
-            if self.to_type == 'y':
-                dist = self.to_y[1] - self.to_y[0]
-                self.rect.y = self.to_y[0] + dist * get_bezier_point(abs_prog, *self.to_bezier)
-
-            elif self.to_type == 'x':
-                dist = self.to_x[1] - self.to_x[0]
-                self.rect.x = self.to_x[0] + dist * get_bezier_point(abs_prog, *self.to_bezier)
-
-            self.to_time[0] += 1 * game.raw_delta_time
-
-            if self.to_time[0] > self.to_time[1]:
-                self.to_time[0] = self.to_time[1]
-
-                if self.to_type == 'y':
-                    self.rect.y = self.to_y[1]
-                elif self.to_type == 'x':
-                    self.rect.x = self.to_x[1]
 
         if self.flipping:
             if self.flip_dir == 0:
@@ -240,13 +224,12 @@ class CardManager(object):
         self.active = False
         self.flags = {'specific': None}
 
-        self.in_cards = False
         self.cards = []
         self.card = None
         self.card_i = 0
 
     def on_key_down(self, key):
-        if not self.in_cards or not self.active:
+        if not self.game.in_cards or not self.active:
             return
         
         if key in self.game.player.keybinds['$interact']:
@@ -333,12 +316,7 @@ class CardManager(object):
 
         self.game.delta_time_multipliers['card_spawn'] = [0, False, [1, [0, 75], 'ease_in']]
 
-        self.game.dim_time = [0, 0]
-        self.game.to_dim = [0, 0]
-
-        self.game.timers['card_spawn_t'] = [50, 1, setattr, (self.game, 'dim_time', [0, 75])]
-        self.game.timers['card_spawn_db'] = [50, 1, setattr, (self.game, 'dim_bezier', bezier_presets['ease_out'])]
-        self.game.timers['card_spawn_td'] = [50, 1, setattr, (self.game, 'to_dim', [self.game.dim, .95])]
+        self.game.easing.create((self.game, 'dim'), .95, 75, 'ease_out', 1, 50)
 
         p = 50
         x = (SCREEN_DIMENSIONS[0] / 2) - (sum(c.image.get_width() for c in cards) + (len(cards) - 1) * p) / 2
@@ -346,17 +324,14 @@ class CardManager(object):
         i = 0
         for card in cards:
             card.rect.x = x
-
-            card.to_time = [0, 80]
-            card.to_type = 'y'
-            card.to_y = (card.rect.y, (SCREEN_DIMENSIONS[1] / 2) - card.rect.height / 2)
             
+            self.game.easing.create((card.rect, 'y'), (SCREEN_DIMENSIONS[1] / 2) - card.rect.height / 2, 80, 'ease_out', 1, 100)
             card.flip_count = 100 + i * 25
 
             i += 1
             x += card.image.get_width() + p
 
-        self.in_cards = True
+        self.game.in_cards = True
         self.cards = tuple(cards)
 
         self.card_i = len(self.cards) // 2
@@ -369,17 +344,11 @@ class CardManager(object):
     
     def select(self):
         for card in self.cards:
-            card.to_time = [0, 60]
-            card.to_type = 'y'
-            card.to_bezier = bezier_presets['ease_in']
-            card.to_y = (card.rect.y, -500)
-
-            if self.card == card:
-                card.to_y = (card.rect.y, SCREEN_DIMENSIONS[1] + 50)
-
+            y = -500 if self.card != card else SCREEN_DIMENSIONS[1] + 50
+            self.game.easing.create((card.rect, 'y'), y, 60, 'ease_in', 1)
             card.d_count = 60
 
-        self.in_cards = False
+        self.game.in_cards = False
 
         if self.card.talent == self.flags['specific']:
             self.flags['specific'] = None
@@ -400,10 +369,9 @@ class CardManager(object):
             talent = self.card.talent(self.game.player)
             self.game.player.talents.append(talent)
 
+        self.game.menus['player'].containers[1]['talents'].add(self.card.cache)
+
         del self.game.delta_time_multipliers['card_spawn']
         self.game.delta_time_multipliers['card_select'] = [1, False, [0, [0, 75], 'ease_in']]
 
-        self.game.dim_time = [0, 50]
-        self.game.dim_bezier = bezier_presets['ease_in']
-
-        self.game.to_dim = [self.game.dim, 0]
+        self.game.easing.create((self.game, 'dim'), 0, 50, 'ease_in', 1)

@@ -33,6 +33,8 @@ class Player(Sprite):
             '@jump': [pygame.K_UP],
             '@dash': [pygame.K_z],
 
+            '@player_menu': [pygame.K_TAB],
+
             # Keydown/Keyup
             '$interact': [pygame.K_x]
         }
@@ -458,7 +460,7 @@ class Player(Sprite):
     def update_inputs(self):
         keys = pygame.key.get_pressed()
 
-        for action in [a for a in self.inputs.keys() if a[0] != '@']:
+        for action in [a for a in self.inputs.keys() if a[0].isalpha()]:
             self.inputs[action] = False
 
             if not isinstance(self.keybinds[action], list):
@@ -724,13 +726,12 @@ class Player(Sprite):
         if self.level >= self.max_level:
             return
         
-        if game.card_manager.in_cards:
+        if game.in_cards:
             return
         
         # Experience curve graph: https://www.desmos.com/calculator/xfn2pzlckt
-        # expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
-        expreq = 1
-
+        expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
+        
         if self.experience < expreq:
             return
         

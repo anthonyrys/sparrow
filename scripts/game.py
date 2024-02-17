@@ -5,11 +5,11 @@ from scripts.mixer import Sfx
 from scripts.mouse import Mouse
 from scripts.player import Player
 from scripts.sprites import Sprites
-from scripts.tilemap import TilemapRenderer
 
 from scripts.npcs import ENEMIES
-from scripts.ui import CardManager
-from scripts.utils import clamp, get_distance, bezier_presets, get_bezier_point
+from scripts.tilemap import TilemapRenderer
+from scripts.ui import CardManager, PlayerMenu
+from scripts.utils import Easing, clamp, get_distance, bezier_presets, get_bezier_point
 
 import moderngl
 import pygame
@@ -75,9 +75,8 @@ class Game(object):
         self.entity_display = pygame.Surface(SCREEN_DIMENSIONS)
 
         self.dim = 0
-        self.to_dim = [0, 0]
-        self.dim_time = [0, 0]
-        self.dim_bezier = bezier_presets['ease_out']
+
+        self.easing = Easing()
 
         self.ui_display = pygame.Surface(SCREEN_DIMENSIONS).convert_alpha()
         self.ui_display.set_colorkey((0, 0, 0))
@@ -93,6 +92,13 @@ class Game(object):
         self.camera = Camera(self.player)
 
         self.card_manager = CardManager(self)
+
+        self.menus = {
+            'player': PlayerMenu(self)
+        }
+
+        self.in_cards = False
+        self.in_menu = False
 
         self.enemies = [{}, Sprites()]
         self.enemy_spawns = {}
@@ -115,8 +121,6 @@ class Game(object):
         self.friendly_spawns = None
 
         self.load_tilemap(self.area)
-
-        self.__debug_player_stats = False
 
     def on_player_respawn(self):
         self.player.dead = False
@@ -198,16 +202,17 @@ class Game(object):
                 if event.key == pygame.K_ESCAPE:
                     quit = True
 
-                if event.key == pygame.K_1:
-                    self.__debug_player_stats = not self.__debug_player_stats
-
                 self.card_manager.on_key_down(event.key)
+                for menu in self.menus.values():
+                    menu.on_key_down(event.key)
 
                 if self.delta_time != 0:
                     self.player.on_key_down(self, event.key)
 
             if event.type == pygame.KEYUP:
                 self.card_manager.on_key_up(event.key)
+                for menu in self.menus.values():
+                    menu.on_key_up(event.key)
 
                 if self.delta_time != 0:
                     self.player.on_key_up(self, event.key)
@@ -247,7 +252,15 @@ class Game(object):
         for delta_dels in dels:
             del self.delta_time_multipliers[delta_dels]
 
-        self.delta_time *= clamp(multiplier, 0, 1)
+        if self.in_menu:
+            self.delta_time = 0
+        else:
+            self.delta_time *= clamp(multiplier, 0, 1)
+
+        self.easing.update(self)
+
+        for menu in self.menus.values():
+            menu.update()
 
         del_timers = []
         for timer in self.timers:
@@ -305,13 +318,6 @@ class Game(object):
 
         self.entity_rect.x, self.entity_rect.y = -self.camera.offset[0], -self.camera.offset[1]
 
-        if self.dim_time[0] < self.dim_time[1]:
-            abs_prog = self.dim_time[0] / self.dim_time[1]
-
-            dist = self.to_dim[1] - self.to_dim[0]
-            self.dim = self.to_dim[0] + dist * get_bezier_point(abs_prog, *self.dim_bezier)
-            self.dim_time[0] += 1 * self.raw_delta_time
-
         self.frames += 1 * self.raw_delta_time
         self.fps_clock[0] += 1 * self.raw_delta_time
         if self.fps_clock[0] >= self.fps_clock[1]:
@@ -340,17 +346,14 @@ class Game(object):
 
             self.tilemap.render_b()
 
-        if self.__debug_player_stats:
-            for i, name in enumerate(['max_health', 'power', 'speed', 'focus']):
-                text = Fonts.create('m3x6', f'{name}: ~g{getattr(self.player, name)}~')
-
-                self.ui_display.blit(text, (20, 100 + (20 * i)))
-
         for ui in self.ui:
             if hasattr(ui, 'use_entity_surface'):
                 ui.render(self.entity_surface)
             else:
                 ui.render(self.ui_display)
+
+        for menu in self.menus.values():
+            menu.render(self.ui_display)
 
         for particle in self.particles:
             if particle.use_entity_surface:

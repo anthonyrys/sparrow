@@ -40,7 +40,7 @@ class Precision(Talent):
     stackable = 5
 
     category = 'offensive'
-    description = 'Gain ~g+1 Power~'
+    description = 'Gain ~g+<1> Power~'
     
     def stack(self):
         super().stack()
@@ -125,7 +125,7 @@ class Vigor(Talent):
     stackable = 5
 
     category = 'defensive'
-    description = 'Gain ~g+1 Health~'
+    description = 'Gain ~g+<1> Health~'
 
     def stack(self):
         super().stack()
@@ -140,7 +140,7 @@ class Reprieve(Talent):
     stackable = 2
 
     category = 'defensive'
-    description = 'Increase the duration;of invincibility when;damaged by 20%'
+    description = 'Increase the duration;of invincibility when;damaged by <20>%'
 
     flags = ['on_damaged']
 
@@ -176,7 +176,7 @@ class Swiftfoot(Talent):
     stackable = 3
 
     category = 'mobility'
-    description = 'Dashing gives;~g+1 Speed~ for 2s'
+    description = 'Dashing gives;~g+<1> Speed~ for 2s'
 
     flags = ['on_dash']
     active = True

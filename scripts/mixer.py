@@ -13,8 +13,10 @@ class Sfx:
         
         'player_hurt': 0.7,
         'player_land': 0.7,
-        'player_death': 0.7
+        'player_death': 0.7,
 
+        'menu_forward': 0.4,
+        'menu_back': 0.4
     }
 
     def init():
