@@ -61,7 +61,11 @@ class Bow(object):
 
         center = self.player.get_position('center')
 
-        arrow = Arrow(self, (center[0] + 10 * self.player.direction, center[1]), self.player.index, self.special, self.effect)
+        x = center[0] + 10 * self.player.direction
+        if self.player.direction < 0:
+            x -= self.arrow_image[0].get_width()
+
+        arrow = Arrow(self, (x, center[1]), self.player.index, self.special, self.effect)
         game.projectiles.append(arrow)
 
         # Particles
