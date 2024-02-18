@@ -17,7 +17,7 @@ class NavContainer(Container):
 
         self.nav = {
             'talents': Textbox((0, 0), 0, 'm3x6', 'Talents', 1.5),
-            '_a': Textbox((0, 0), 0, 'm3x6', '???', 1.5)
+            'stats': Textbox((0, 0), 0, 'm3x6', 'Stats', 1.5)
         }
         
         self.nav_n = len(self.nav)
@@ -45,6 +45,8 @@ class NavContainer(Container):
         
         self.menu.root = 1
         self.menu.current = self.nav_k[self.i]
+
+        Sfx.stop('menu_back')
         Sfx.play('menu_forward')
     
     def update(self):
@@ -254,6 +256,131 @@ class TalentsContainer(Container):
         self.main.render(surface)
         self.display.render(surface)
 
+class StatsContainer(Container):
+    class Primary(object):
+        def __init__(self, container):
+            self.container = container
+
+            self.background = scale(pygame.image.load(os.path.join(MENU_PATH, 'player', 'stats', 'stats-back.png')), 3)
+            self.background_rect = self.background.get_rect(bottomright=(400, SCREEN_DIMENSIONS[1] // 1.9))
+            self.background_x, self.background_y = self.background_rect.topleft
+
+            self.level_k = Textbox((self.background_x + 30, self.background_y + 30), 1, 'm3x6', 'Level: ', 1.5)
+            self.level_v = None
+            self.exp = None
+            self.max = False
+
+            self.stats_k = []
+            self.stats_v = []
+
+            x, y = self.background_x + 30, self.background_y + self.background_rect.height // 1.75
+            for i, s in enumerate(self.container.stats):
+                textbox = Textbox((x, y), 1, 'm3x6', f'{s}:')
+                x += self.background_rect.width // 2
+                self.stats_k.append(textbox)
+
+                if (i + 1) % 2 == 0:
+                    x = self.background_x + 30
+                    y += textbox.image.get_height() * (1.5 if i != 1 else 2.25)
+
+        def render(self, surface):
+            global_x, global_y = self.container.menu.global_x, self.container.menu.global_y
+            
+            position = (self.background_x + global_x, self.background_y + global_y)
+            surface.blit(self.background, position) 
+
+            self.level_k.render(surface, (global_x, global_y))
+            self.level_v.render(surface, (global_x, global_y))
+            
+            self.exp.render(surface, (global_x, global_y))
+
+            for k in self.stats_k:
+                k.render(surface, (global_x, global_y))
+            
+            for va, vb in self.stats_v:
+                va.render(surface, (global_x, global_y))
+                if vb != None:
+                    vb.render(surface, (global_x, global_y))
+
+    class Secondary(object):
+        def __init__(self, container):
+            self.container = container
+
+        def render(self, surface):
+            ...
+
+    def __init__(self, menu):
+        super().__init__(menu)
+
+        self.stats = {
+            k: (0, 0) for k in ('Health', 'Power', 'Speed', 'Focus', 'Knockback', 'Weight')
+        }
+
+        self.primary = self.Primary(self)
+        self.secondary = self.Secondary(self)
+
+        self.header = Textbox((0, 0), 1, 'm3x6', 'Stats', 1.5)
+        self.header.rect.topleft = (self.primary.background_x + 10, self.primary.background_y - 30)
+        self.header.original_rect.topleft = self.header.rect.topleft
+    
+    def rooted(self):
+        player = self.menu.game.player
+        
+        if player.level >= player.max_level and not self.primary.max:
+            self.primary.max = True
+            self.primary.level_k = Textbox((self.primary.background_x + 30, self.primary.background_y + 30), 1, 'm3x6', 'Level: ', 1.5, (205, 250, 225))
+
+        elif player.level < player.max_level and self.primary.max:
+            self.primary.max = False
+            self.primary.level_k = Textbox((self.primary.background_x + 30, self.primary.background_y + 30), 1, 'm3x6', 'Level: ', 1.5)
+
+        # Update level
+        level_k = self.primary.level_k
+
+        color = (255, 255, 255)
+        if self.primary.max:
+            color = (205, 250, 225)
+            
+        self.primary.level_v = Textbox((level_k.rect.right + 5, 0), 1, 'm3x6', player.level, 1.5, color)
+        self.primary.level_v.rect.centery = level_k.rect.centery
+
+        exp = f'{player.experience} / {player.expreq}' if player.level < player.max_level else 'MAX'
+        col = (175, 175, 175) if player.level < player.max_level else color
+        self.primary.exp = Textbox((level_k.rect.left, level_k.rect.bottom + 5), 1, 'm3x6', exp, 1, col)
+
+        # Update stats
+        self.stats['Health'] = (5, player.health - 5)
+        self.stats['Power'] = (0, player.power)
+
+        self.stats['Speed'] = (0, player.speed)
+        self.stats['Focus'] = (0, player.focus)
+
+        self.stats['Knockback'] = (0, player.knockback)
+        self.stats['Weight'] = (0, player.weight)
+
+        k = self.primary.stats_k
+        self.primary.stats_v = []
+        for i, v in enumerate(self.stats):
+            textbox_a = Textbox((k[i].rect.right + 5, k[i].rect.top), 1, 'm3x6', self.stats[v][0])
+
+            textbox_b = None
+            if self.stats[v][1] != 0:
+                textbox_b = Textbox((k[i].rect.right + textbox_a.rect.width * 2.25, k[i].rect.top), 1, 'm3x6', f'~g+{self.stats[v][1]}~',)
+
+            self.primary.stats_v.append((textbox_a, textbox_b))
+
+    def back(self):
+        self.menu.root = 0
+        self.menu.current = 'nav'
+
+        Sfx.play('menu_back')    
+
+    def render(self, surface):
+        self.header.render(surface, (self.menu.global_x, self.menu.global_y))
+
+        self.primary.render(surface)
+        self.secondary.render(surface)
+
 
 class PlayerMenu(Menu):
     def __init__(self, game):
@@ -273,7 +400,8 @@ class PlayerMenu(Menu):
             {'nav': NavContainer(self)},
 
             # Root 1
-            {'talents': TalentsContainer(self)}
+            {'talents': TalentsContainer(self),
+             'stats': StatsContainer(self)}
         ]
 
     def on_key_down(self, key):

@@ -64,6 +64,9 @@ class Player(Sprite):
         self.max_level = 15
         self.experience = 0
 
+        # Experience curve graph: https://www.desmos.com/calculator/xfn2pzlckt
+        self.expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
+
         # Primary Stats
         self.max_health = 5
         self.max_health_cap = 110
@@ -729,14 +732,12 @@ class Player(Sprite):
         if game.in_cards:
             return
         
-        # Experience curve graph: https://www.desmos.com/calculator/xfn2pzlckt
-        expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
-        
-        if self.experience < expreq:
+        if self.experience < self.expreq:
             return
         
         self.level += 1
-        self.experience -= expreq
+        self.experience -= self.expreq
+        self.expreq = round(5 * self.level **2 / GLOBAL_EXPERIENCE_CURVE) + 5
 
         # self.max_health += 1
         # self.health += 1
