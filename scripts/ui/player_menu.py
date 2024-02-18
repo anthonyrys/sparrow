@@ -35,7 +35,7 @@ class NavContainer(Container):
 
             i += 1
             
-        self.pointer = scale(pygame.image.load(os.path.join(MENU_PATH, 'player', 'nav-pointer.png')), 3)
+        self.pointer = scale(pygame.image.load(os.path.join(MENU_PATH, 'nav-pointer.png')), 3)
         self.pointer_x = 50
         self.pointer_y = self.nav_v[self.i].rect.y
 

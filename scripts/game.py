@@ -8,7 +8,7 @@ from scripts.sprites import Sprites
 
 from scripts.npcs import ENEMIES
 from scripts.tilemap import TilemapRenderer
-from scripts.ui import CardManager, PlayerMenu
+from scripts.ui import CardManager, PauseMenu, PlayerMenu
 from scripts.utils import Easing, clamp, get_distance, bezier_presets, get_bezier_point
 
 import moderngl
@@ -60,6 +60,8 @@ class Game(object):
 
 
         # Pygame
+        self.quit = False
+
         self.clock = clock
         self.fps_clock = [10, 10]
         self.fps_surface = None
@@ -94,6 +96,7 @@ class Game(object):
         self.card_manager = CardManager(self)
 
         self.menus = {
+            'pause': PauseMenu(self),
             'player': PlayerMenu(self)
         }
 
@@ -192,16 +195,11 @@ class Game(object):
             self.enemy_ticks[0] = 0
 
     def update(self):
-        quit = False
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit = True
+                self.quit = True
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    quit = True
-
                 self.card_manager.on_key_down(event.key)
                 for menu in self.menus.values():
                     menu.on_key_down(event.key)
@@ -324,7 +322,7 @@ class Game(object):
             self.fps_clock[0] = 0
             self.fps_surface = Fonts.create('m3x6', round(self.clock.get_fps()), 1.5)
 
-        return quit
+        return self.quit
 
     def render(self):
         if self.delta_time != 0:
