@@ -38,11 +38,12 @@ class NavContainer(Container):
         self.pointer_y = 0
 
     def select(self):
+        if self.nav_k[self.i] == 'exit':
+            self.menu.game.quit = True
+            return
+        
         if self.nav_k[self.i] == 'continue':
             self.menu.on_key_down(pygame.K_ESCAPE)
-
-        elif self.nav_k[self.i] == 'exit':
-            self.menu.game.quit = True
 
         Sfx.stop('menu_back')
         Sfx.play('menu_forward')
