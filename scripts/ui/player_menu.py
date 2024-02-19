@@ -411,6 +411,9 @@ class PlayerMenu(Menu):
         if self.game.in_cards:
             return
         
+        if self.game.player.interact_npc:
+            return
+        
         if key in self.game.player.keybinds['@player_menu']:
             self.active = not self.active
             self.game.in_menu = self.active

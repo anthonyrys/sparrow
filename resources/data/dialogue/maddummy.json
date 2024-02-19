@@ -1,0 +1,52 @@
+{
+    "name": "Mad Dummy",
+    "color": [255, 255, 255],
+    "font": "m3x6",
+
+    "speed": 2.5,
+    "delay": 45,
+    "voice": "deep",
+  
+    "trees": {
+        "default": {
+            "dialogue": "You see that dummy over there? They keep;spouting nonsense about being smart.",
+            "function": null,
+            "next": {
+
+                "dialogue": "But thats just ridiculous! A dummy can never be;smart, trying to prove otherwise is just a;waste of effort.",
+                "function": null,
+                "next": null,
+                "responses": {
+
+                    "Yeah, you're right.": {
+                        "dialogue": "Just seeing him makes my blood boil!",
+                        "function": ["flag", "maddummy_talk"],
+                        "next": null,
+                        "responses": null
+                    },
+
+                    "I don't think so.": {
+                        "dialogue": "Pfft.. You would never understand.",
+                        "function": null,
+                        "next": {
+                            
+                            "dialogue": "After all, you're the one with arms and legs..",
+                            "function": ["flag", "maddummy_talk"],
+                            "next": null,
+                            "responses": null
+                        },
+                        "responses": null
+                    }
+                }
+            },
+            "responses": null
+        },
+
+        "maddummy_talk": {
+            "dialogue": "You're still here?",
+            "function": null,
+            "next": null,
+            "responses": null
+        }
+    }
+}

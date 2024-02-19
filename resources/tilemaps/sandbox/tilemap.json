@@ -1,22 +1,29 @@
 {
   "config": {
-    "flipped": false,
-    "grid_placing": false,
+    "flipped": true,
+    "grid_placing": true,
     "images": {
       "enemies": {
-        "path": "imgs\\enemies.png",
+        "path": "images\\enemies.png",
         "tiles": [
           "Target"
         ]
       },
       "flags": {
-        "path": "imgs\\flags.png",
+        "path": "images\\flags.png",
         "tiles": [
           "Player_spawn"
         ]
       },
+      "friendlies": {
+        "path": "images\\friendlies.png",
+        "tiles": [
+          "Dummy",
+          "MadDummy"
+        ]
+      },
       "tiles": {
-        "path": "imgs\\tiles.png",
+        "path": "images\\tiles.png",
         "tiles": [
           "Tile",
           "Barrier"
@@ -25,8 +32,8 @@
     },
     "name": "Sandbox",
     "offset": [
-      -2585,
-      -373
+      -1923,
+      -265
     ],
     "orientation": 0,
     "strata": 0,
@@ -2140,6 +2147,38 @@
       "strata": 0,
       "tile": "Target",
       "tileset": "enemies"
+    },
+    {
+      "dimensions": [
+        32,
+        64
+      ],
+      "flipped": false,
+      "index": 0,
+      "orientation": 0,
+      "position": [
+        1024,
+        832
+      ],
+      "strata": 0,
+      "tile": "Dummy",
+      "tileset": "friendlies"
+    },
+    {
+      "dimensions": [
+        32,
+        64
+      ],
+      "flipped": true,
+      "index": 1,
+      "orientation": 0,
+      "position": [
+        2304,
+        512
+      ],
+      "strata": 0,
+      "tile": "MadDummy",
+      "tileset": "friendlies"
     }
   ]
 }

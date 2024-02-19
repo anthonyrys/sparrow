@@ -91,6 +91,7 @@ class Player(Sprite):
 
         self.target_npc = None
         self.target_prop = None
+        self.target_distance = 50
 
         self.interact_npc = None
 
@@ -189,6 +190,9 @@ class Player(Sprite):
     def on_interact(self, game, input):
         if self.health == 0:
             return
+        
+        if 'interacted' in self.cooldowns:
+            return
 
         # Npcs -> Props -> Bow
         if input == 'down':
@@ -197,7 +201,28 @@ class Player(Sprite):
 
 
             elif self.target_npc:
-                ...
+                self.interact_npc = self.target_npc[0]
+                self.target_npc = None
+                
+                game.camera.anchor_parent = self.interact_npc
+
+                x = self.interact_npc.rect.centerx
+                if self.interact_npc.rect.x > self.rect.x:
+                    self.direction = 1
+                    self.interact_npc.direction = -1
+                    x -= self.interact_npc.rect.width * 2
+
+                else:
+                    self.direction = -1
+                    self.interact_npc.direction = 1
+                    x += self.interact_npc.rect.width * 2
+
+                if abs(get_distance(self.interact_npc.rect.center, self.rect.center)) < 40:
+                    self.velocity[0] = (x - self.rect.centerx) / 15
+                else:
+                    self.velocity[0] = 0
+
+                self.interact_npc.interact(game)
 
             elif self.target_prop:
                 ...
@@ -227,7 +252,7 @@ class Player(Sprite):
         if not self.collide_points['bottom'] and self.jumps[0] == self.jumps[1] and 'coyote' not in self.events:
             return
 
-        if 'damaged' in self.events or 'dashed' in self.events:
+        if 'damaged' in self.events or 'dashed' in self.events or self.interact_npc:
             return
 
         if self.health == 0:
@@ -271,7 +296,7 @@ class Player(Sprite):
         game.particles.extend([particle_r, particle_l])
 
     def on_dash(self, game):
-        if self.dashes[0] <= 0 or '@dash' in self.cooldowns:
+        if self.dashes[0] <= 0 or '@dash' in self.cooldowns or 'interacted' in self.cooldowns:
             return
 
         if not self.inputs['left'] and not self.inputs['right'] and not self.inputs['up']:
@@ -280,7 +305,7 @@ class Player(Sprite):
         if self.bow.state == 1:
             return
 
-        if 'damaged' in self.events:
+        if 'damaged' in self.events or self.interact_npc:
             return
 
         if self.health == 0:
@@ -501,7 +526,7 @@ class Player(Sprite):
             else:
                 self.velocity[0] += self.move_friction * game.delta_time
 
-        if 'damaged' not in self.events:
+        if 'damaged' not in self.events and not self.interact_npc:
             if self.inputs['right'] and not self.inputs['left']:
                 self.velocity[0] += move_speed * game.delta_time if self.velocity[0] < max_move_speed - self.move_restriction else 0
 
@@ -520,11 +545,17 @@ class Player(Sprite):
 
                 elif self.velocity[0] < 0:
                     self.velocity[0] += move_speed * .5 * game.delta_time
+        else:
+            if self.velocity[0] > 0:
+                self.velocity[0] -= move_speed * .5 * game.delta_time
+
+            elif self.velocity[0] < 0:
+                self.velocity[0] += move_speed * .5 * game.delta_time
 
         if abs(self.velocity[0]) < move_speed * game.delta_time:
             self.velocity[0] = 0
 
-        if 'damaged' not in self.events:
+        if 'damaged' not in self.events and not self.interact_npc:
             if self.velocity[0] > 0:
                 if self.bow.state == 1 and self.inputs['right'] and self.tinput == 'left':
                     self.direction = -1
@@ -723,7 +754,22 @@ class Player(Sprite):
         self.image = pygame.transform.flip(image, True, False).convert_alpha() if self.direction < 0 else image
 
     def update_targets(self, game):
-        ...
+        # Npcs
+        if not self.interact_npc:
+            if self.target_npc is not None:
+                self.target_npc[0].target = False
+
+            self.target_npc = None
+            for friendly in game.tilemap.friendlies:
+                dist = get_distance(self.position, friendly.position)
+                if dist > self.target_distance:
+                    continue
+
+                if self.target_npc is None or dist < self.target_npc[1]:
+                    self.target_npc = (friendly, dist)
+
+            if self.target_npc is not None:
+                self.target_npc[0].target = True
 
     def update_level(self, game):
         if self.level >= self.max_level:

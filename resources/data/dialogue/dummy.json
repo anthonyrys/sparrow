@@ -1,0 +1,62 @@
+{
+    "name": "Dummy",
+    "color": [255, 255, 255],
+    "font": "m3x6",
+    
+    "speed": 2.5,
+    "delay": 45,
+    "voice": "high",
+  
+    "trees": {
+        "default": {
+            "dialogue": "Hi, I am what some would call a dummy. But I;consider myself pretty smart compared to the;average joe.",
+            "function": null,
+            "next": {
+
+                "dialogue": "What do you say?",
+                "function": null,
+                "next": null,
+                "responses": {
+
+                    "Of course.": {
+                        "dialogue": "See, I knew I was smart!",
+                        "function": ["flag", "dummy_happy"],
+                        "next": null,
+                        "responses": null
+                    },
+
+                    "That's stupid..": {
+                        "dialogue": "Come on, don't be such a doubter..",
+                        "function": ["flag", "dummy_sad"],
+                        "next": null,
+                        "responses": null
+                    }
+                }
+            },
+            "responses": null
+        },
+
+        "dummy_happy": {
+            "dialogue": "Hello again friend!",
+            "function": null,
+            "next": null,
+            "responses": {                 
+            
+                "Who is that dummy?": {
+                    "prereq": ["flag", "maddummy_talk"],
+                    "dialogue": "I don't know, they always seem to be angry at;something. I hope it's not me..",
+                    "function": null,
+                    "next": null,
+                    "responses": null
+                }
+            }
+        },
+
+        "dummy_sad": {
+            "dialogue": "Just you wait, I will prove to the world that I;am smart!",
+            "function": null,
+            "next": null,
+            "responses": null
+        }
+    }
+}

@@ -1,12 +1,14 @@
 from scripts.sprite import Sprite
 
 from scripts.ui import EnemyHealthbar
-from scripts.utils import generate_import_dict, bezier_presets, get_bezier_point
+from scripts.utils import generate_import_dict, bezier_presets, get_bezier_point, scale
 from scripts.visual_fx import PolygonParticle
 
 import pygame
 import random
 import os
+
+ENEMY_PATH = os.path.join('resources', 'images', 'enemies')
 
 class Enemy(Sprite):
     def __init__(self, position, image, index):
@@ -143,7 +145,9 @@ class Enemy(Sprite):
 
 class Target(Enemy):
     def __init__(self, position, index):
-        image = pygame.image.load(os.path.join('resources', 'images', 'enemies', 'target-s', 'target-s.png')).convert_alpha()
+        image = pygame.image.load(os.path.join(ENEMY_PATH, 'target-s', 'target-s.png')).convert_alpha()
+        image = scale(image, 2)
+
         super().__init__(position, image, index)
 
         self.enemy_type = 'stationary'

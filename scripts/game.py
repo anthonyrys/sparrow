@@ -107,8 +107,6 @@ class Game(object):
         self.enemy_spawns = {}
         self.enemy_ticks = [0, 180]
 
-        self.friendlies = Sprites()
-
         self.projectiles = Sprites()
 
         self.particles = Sprites()
@@ -146,6 +144,7 @@ class Game(object):
         if 'Player_spawn' in self.tilemap.flags and self.player.position == [0.0, 0.0]:
             self.player.rect.topleft = self.tilemap.flags['Player_spawn'][0]
 
+        self.enemies = [{}, Sprites()]
         self.enemy_spawns = {
             k: (v, (1, 500)) for k, v in self.tilemap.enemies.items()
         }
@@ -204,6 +203,10 @@ class Game(object):
                 for menu in self.menus.values():
                     menu.on_key_down(event.key)
 
+                for ui in self.ui:
+                    if hasattr(ui, 'on_key_down'):
+                        ui.on_key_down(self, event.key)
+
                 if self.delta_time != 0:
                     self.player.on_key_down(self, event.key)
 
@@ -212,6 +215,10 @@ class Game(object):
                 for menu in self.menus.values():
                     menu.on_key_up(event.key)
 
+                for ui in self.ui:
+                    if hasattr(ui, 'on_key_up'):
+                        ui.on_key_up(self, event.key)
+                        
                 if self.delta_time != 0:
                     self.player.on_key_up(self, event.key)
 
