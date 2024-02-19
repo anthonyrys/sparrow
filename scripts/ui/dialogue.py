@@ -147,6 +147,26 @@ class Dialogue(Sprite):
 
         game.ui.remove(self)
     
+    def check(self, game, current):
+        if 'prereq' not in current:
+            return True
+        
+        prereq = current['prereq']
+
+        if prereq[0] == 'flag':
+            if prereq[1] not in game.player.npc_flags.keys():
+                return False
+
+        elif prereq[0] == 'min-level':
+            if game.player.level < prereq[1]:
+                return False
+        
+        elif prereq[0] == 'max-level':
+            if game.player.level > prereq[1]:
+                return False
+        
+        return True
+    
     def update_text(self, game):
         self.tick -= (3 if self.skipping else 1) * game.raw_delta_time
 
@@ -177,29 +197,27 @@ class Dialogue(Sprite):
                 empty = True
 
                 for response in self.current['responses'].keys():
-                    if 'prereq' in self.current['responses'][response]:
-                        prereq = self.current['responses'][response]['prereq']
-
-                        if prereq[0] == 'flag':
-                            if prereq[1] not in game.player.npc_flags.keys():
-                                continue
-                    
-                    empty = False
+                    if not self.check(game, self.current['responses'][response]):
+                        continue
 
                     textbox = Textbox((self.rect.right + 40, self.rect.top + 20 + y), 1, self.info['font'], response, 1)
                     self.responses[response] = textbox
 
                     y += textbox.image.get_height() * 2
+                    empty = False
 
                 if empty:
                     self.current['responses'] = None
-
                 else:
                     self.responses_k = tuple(self.responses.keys())
                     self.responses_v = tuple(self.responses.values())
 
                     self.y = 0
                     self.s = -1
+            
+            elif self.current['next']:
+                if not self.check(game, self.current['next']):
+                    self.current['next'] = None
 
             return
         
@@ -222,7 +240,6 @@ class Dialogue(Sprite):
                 Sfx.play(f'dialogue_{self.info["voice"]}-s', .2)
             else:
                 Sfx.play(f'dialogue_{self.info["voice"]}', .25)
-
 
     def update_responses(self, game):
         if not self.current['responses'] or not self.pause:

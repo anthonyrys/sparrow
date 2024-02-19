@@ -1,0 +1,47 @@
+{
+    "name": "Broken Dummy",
+    "color": [255, 255, 255],
+    "font": "m3x6",
+    
+    "speed": 2.5,
+    "delay": 45,
+    "voice": "high",
+  
+    "trees": {
+        "default": {
+            "dialogue": "...",
+            "function": null,
+            "next": null,
+            "responses": {
+
+                "...": {
+                    "dialogue": "...",
+                    "function": null,
+                    "next": null,
+                    "responses": null
+                },
+
+                "Are you okay?": {
+                    "prereq": ["min-level", 5],
+                    "dialogue": "I tripped, thats all..",
+                    "function": null,
+                    "next": {
+
+                        "dialogue": "I'll get up, eventually..",
+                        "function": null,
+                        "next": {
+                            
+                            "prereq": ["min-level", 10],
+                            "dialogue": "Maybe you can help me..?",
+                            "function": null,
+                            "next": null,
+                            "responses": null
+                        },
+                        "responses": null
+                    },
+                    "responses": null
+                }
+            }
+        }
+    }
+}

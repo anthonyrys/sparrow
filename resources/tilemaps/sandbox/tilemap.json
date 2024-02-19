@@ -1,6 +1,6 @@
 {
   "config": {
-    "flipped": true,
+    "flipped": false,
     "grid_placing": true,
     "images": {
       "enemies": {
@@ -19,7 +19,8 @@
         "path": "images\\friendlies.png",
         "tiles": [
           "Dummy",
-          "MadDummy"
+          "MadDummy",
+          "BrokenDummy"
         ]
       },
       "tiles": {
@@ -32,8 +33,8 @@
     },
     "name": "Sandbox",
     "offset": [
-      -1923,
-      -265
+      -4852,
+      -406
     ],
     "orientation": 0,
     "strata": 0,
@@ -2166,10 +2167,26 @@
     },
     {
       "dimensions": [
+        64,
+        64
+      ],
+      "flipped": false,
+      "index": 2,
+      "orientation": 0,
+      "position": [
+        5376,
+        832
+      ],
+      "strata": 0,
+      "tile": "BrokenDummy",
+      "tileset": "friendlies"
+    },
+    {
+      "dimensions": [
         32,
         64
       ],
-      "flipped": true,
+      "flipped": false,
       "index": 1,
       "orientation": 0,
       "position": [

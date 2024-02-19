@@ -33,6 +33,7 @@ class Friendly(Sprite):
         self.dialogue = Dialogue(self)
 
         self.direction = -1
+        self.can_direction = True
         self.original_direction = self.direction
 
     def interact(self, game):
@@ -57,7 +58,9 @@ class Friendly(Sprite):
 
     def update(self, game):
         self.key = pygame.key.name(game.player.keybinds['$interact'][0])
-        self.image = pygame.transform.flip(self.original_image, True, False).convert_alpha() if self.direction > 0 else self.original_image
+
+        if self.can_direction:
+            self.image = pygame.transform.flip(self.original_image, True, False).convert_alpha() if self.direction > 0 else self.original_image
       
     def render(self, surface):
         if self.target:
@@ -84,5 +87,14 @@ class MadDummy(Friendly):
         image = scale(image, 2)
 
         super().__init__(position, image, index)
+
+class BrokenDummy(Friendly):
+    def __init__(self, position, index):
+        image = pygame.image.load(os.path.join(FRIENDLY_PATH, 'broken-dummy', 'broken-dummy.png')).convert_alpha()
+        image = scale(image, 2)
+
+        super().__init__(position, image, index)
+
+        self.can_direction = False
 
 FRIENDLIES = generate_import_dict('Friendly')

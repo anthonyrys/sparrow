@@ -21,7 +21,14 @@
                     "Yeah, you're right.": {
                         "dialogue": "Just seeing him makes my blood boil!",
                         "function": ["flag", "maddummy_talk"],
-                        "next": null,
+                        "next": {
+                            
+                            "prereq": ["min-level", 5],
+                            "dialogue": "You seem smart, so it's nice to finally get some;common sense around here!",
+                            "function": null,
+                            "next": null,
+                            "responses": null
+                        },
                         "responses": null
                     },
 
