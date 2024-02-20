@@ -8,9 +8,11 @@ import pygame
 import random
 import os
 
-ENEMY_PATH = os.path.join('resources', 'images', 'enemies')
+ENEMY_PATH = os.path.join('resources', 'images', 'npcs', 'enemies')
 
 class Enemy(Sprite):
+    area = None
+
     def __init__(self, position, image, index):
         super().__init__(position, image, index)
 
@@ -143,9 +145,12 @@ class Enemy(Sprite):
         if self.image_pulse_frames[0] > 0 and self.pulse_image:
             surface.blit(self.pulse_image, self.pulse_image.get_rect(center=self.rect.center))
 
+
 class Target(Enemy):
+    area = 'sandbox'
+    
     def __init__(self, position, index):
-        image = pygame.image.load(os.path.join(ENEMY_PATH, 'target-s', 'target-s.png')).convert_alpha()
+        image = pygame.image.load(os.path.join(ENEMY_PATH, self.area, 'target-s', 'target-s.png')).convert_alpha()
         image = scale(image, 2)
 
         super().__init__(position, image, index)
@@ -160,5 +165,6 @@ class Target(Enemy):
 
         self.knockback = 3
         self.weight = -1
+
 
 ENEMIES = generate_import_dict('Enemy')

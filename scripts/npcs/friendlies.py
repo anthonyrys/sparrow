@@ -7,9 +7,11 @@ from scripts.utils import generate_import_dict, scale
 import pygame
 import os
 
-FRIENDLY_PATH = os.path.join('resources', 'images', 'friendlies')
+FRIENDLY_PATH = os.path.join('resources', 'images', 'npcs', 'friendlies')
 
 class Friendly(Sprite):
+    area = None
+
     def __init__(self, position, image, index, interact='Talk'):
         super().__init__(position, image, index)
 
@@ -74,27 +76,35 @@ class Friendly(Sprite):
 
         surface.blit(self.image, self.image.get_rect(center=self.rect.center))
 
+
 class Dummy(Friendly):
+    area = 'sandbox'
+
     def __init__(self, position, index):
-        image = pygame.image.load(os.path.join(FRIENDLY_PATH, 'dummy', 'dummy.png')).convert_alpha()
+        image = pygame.image.load(os.path.join(FRIENDLY_PATH, self.area, 'dummy', 'dummy.png')).convert_alpha()
         image = scale(image, 2)
 
         super().__init__(position, image, index)
 
 class MadDummy(Friendly):
+    area = 'sandbox'
+    
     def __init__(self, position, index):
-        image = pygame.image.load(os.path.join(FRIENDLY_PATH, 'mad-dummy', 'mad-dummy.png')).convert_alpha()
+        image = pygame.image.load(os.path.join(FRIENDLY_PATH, self.area, 'mad-dummy', 'mad-dummy.png')).convert_alpha()
         image = scale(image, 2)
 
         super().__init__(position, image, index)
 
 class BrokenDummy(Friendly):
+    area = 'sandbox'
+
     def __init__(self, position, index):
-        image = pygame.image.load(os.path.join(FRIENDLY_PATH, 'broken-dummy', 'broken-dummy.png')).convert_alpha()
+        image = pygame.image.load(os.path.join(FRIENDLY_PATH, self.area, 'broken-dummy', 'broken-dummy.png')).convert_alpha()
         image = scale(image, 2)
 
         super().__init__(position, image, index)
 
         self.can_direction = False
+
 
 FRIENDLIES = generate_import_dict('Friendly')

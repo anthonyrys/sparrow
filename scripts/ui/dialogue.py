@@ -91,7 +91,7 @@ class Dialogue(Sprite):
                 
     def load(self):
         try:
-            with open(os.path.join('resources', 'data', 'dialogue', f'{self.friendly.sprite_id.lower()}.json')) as t:
+            with open(os.path.join('resources', 'data', 'dialogue', self.friendly.area, f'{self.friendly.sprite_id.lower()}.json')) as t:
                 data = json.load(t)    
 
         except FileNotFoundError:
