@@ -20,7 +20,13 @@ class Menu(object):
 class Container(object):
     def __init__(self, menu):
         self.menu = menu
-        
+
+    def on_key_down(self, key):
+        ...
+
+    def on_key_up(self, key):
+        ...
+
     def rooted(self):
         ...
     

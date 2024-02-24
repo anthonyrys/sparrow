@@ -8,8 +8,8 @@ def main():
 
         pygame.display.flip()
 
-        # FPS is uncapped, but the game is designed for 60 FPS
-        clock.tick()
+        # FPS can be changed in settings, but the game is designed for 60 FPS
+        clock.tick(game.fps_cap)
 
 if __name__ == '__main__':
     from scripts import (TITLE, VERSION, SCREEN_DIMENSIONS)

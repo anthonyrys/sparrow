@@ -241,6 +241,7 @@ class Arrow(Sprite):
     def collision(self, game, entity):
         particles = []
         velocity = pygame.math.Vector2(self.position) - pygame.math.Vector2(self.previous_position)
+        velocity[0] = clamp(velocity[0], -10, 10)
 
         distance_travelled = get_distance(self.position, self.start_position)
 
@@ -370,8 +371,10 @@ class Arrow(Sprite):
                 self.afterimages.append([self.image.copy(), self.image.get_alpha(), self.position])
 
         if not game.delta_time <= 0.01:
-            angle = (180 / math.pi) * math.atan2(*(self.position[0] - self.previous_position[0], self.position[1] - self.previous_position[1])) - 90
-            self.image = pygame.transform.rotate(self.original_image, angle).convert_alpha()
+            dist = (self.position[0] - self.previous_position[0], self.position[1] - self.previous_position[1])
+            if dist != (0, 0):
+                angle = (180 / math.pi) * math.atan2(*dist) - 90
+                self.image = pygame.transform.rotate(self.original_image, angle).convert_alpha()
 
         for tile in game.tilemap.chunks[self.current_chunk]:
             if tile.rect.colliderect(self.rect):
@@ -389,7 +392,7 @@ class Arrow(Sprite):
 
         dels = []
         for i in range(len(self.afterimages)):
-            self.afterimages[i][1] -= self.afterimage_sub
+            self.afterimages[i][1] -= self.afterimage_sub * game.delta_time
             if self.afterimages[i][1] <= 0:
                 dels.append(i)
             else:

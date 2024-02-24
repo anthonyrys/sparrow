@@ -5,6 +5,7 @@ class Sfx:
     SOUNDS = {}
     SETTINGS = {}
 
+    GLOBAL_VOLUME = 1
     STATIC_VOLUMES = {
         'arrow_collide-e': 0.6,
         'arrow_collide-t': 0.6,
@@ -52,6 +53,7 @@ class Sfx:
 
         if sound in Sfx.STATIC_VOLUMES:
             volume *= Sfx.STATIC_VOLUMES[sound]
+        volume *= Sfx.GLOBAL_VOLUME
 
         Sfx.SOUNDS[sound].set_volume(volume)
         Sfx.SOUNDS[sound].play()

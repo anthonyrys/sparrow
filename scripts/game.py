@@ -35,6 +35,7 @@ class Game(object):
 
         self.shaders = {'vert': {}, 'frag': {}}
         self.textures = {'entity': None, 'ui': None}
+        self.buffers = {}
         self.programs = {}
 
         path = os.path.join('resources', 'shaders')
@@ -61,6 +62,7 @@ class Game(object):
 
         # Pygame
         self.quit = False
+        self.fps_cap = 0
 
         self.clock = clock
         self.fps_clock = [10, 10]
@@ -192,6 +194,13 @@ class Game(object):
                     break
 
             self.enemy_ticks[0] = 0
+
+    def update_buffers(self):
+        self.programs['main']['dim_f'].value = self.dim
+
+        for buffer in (b for b in self.buffers if self.buffers[b]):
+            self.buffers[buffer].release()
+            self.buffers[buffer] = None
 
     def update(self):
         for event in pygame.event.get():
@@ -329,6 +338,8 @@ class Game(object):
             self.fps_clock[0] = 0
             self.fps_surface = Fonts.create('m3x6', round(self.clock.get_fps()), 1.5)
 
+        self.update_buffers()
+
         return self.quit
 
     def render(self):
@@ -373,7 +384,6 @@ class Game(object):
         if self.delta_time != 0:
             self.entity_display.blit(self.entity_surface, self.camera.offset)
 
-        self.programs['main']['dim_f'].value = self.dim
         self.textures['entity'].write(self.entity_display.get_view('1'))
         self.textures['ui'].write(self.ui_display.get_view('1'))
 
