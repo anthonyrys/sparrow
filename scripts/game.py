@@ -1,6 +1,7 @@
 from scripts import FRAME_RATE, SCREEN_DIMENSIONS
 from scripts.camera import Camera
 from scripts.fonts import Fonts
+from scripts.mgl_renderer import MglRenderer
 from scripts.mixer import Sfx
 from scripts.mouse import Mouse
 from scripts.player import Player
@@ -11,54 +12,13 @@ from scripts.tilemap import TilemapRenderer
 from scripts.ui import CardManager, PauseMenu, PlayerMenu
 from scripts.utils import Easing, clamp, get_distance, bezier_presets, get_bezier_point
 
-import moderngl
 import pygame
 import pygame.gfxdraw
-import random
-import array
 import time
-import os
 
 class Game(object):
     def __init__(self, clock, context):
-        # Moderngl
-        self.context = context
-
-        self.main_buffer = context.buffer(
-            data=array.array('f', [
-                -1.0, 1.0, 0.0, 0.0,
-                1.0, 1.0, 1.0, 0.0,
-                -1.0, -1.0, 0.0, 1.0,
-                1.0, -1.0, 1.0, 1.0
-            ])
-        )
-
-        self.shaders = {'vert': {}, 'frag': {}}
-        self.textures = {'entity': None, 'ui': None}
-        self.buffers = {}
-        self.programs = {}
-
-        path = os.path.join('resources', 'shaders')
-        for shader in os.listdir(path):
-            with open(os.path.join(path, shader), 'r') as s:
-                self.shaders[shader.split('.')[1]][shader.split('.')[0]] = s.read()
-
-        for texture in self.textures:
-            tex = context.texture(SCREEN_DIMENSIONS, 4)
-            tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
-            tex.swizzle = 'BGRA'
-
-            self.textures[texture] = tex
-
-        self.textures['entity'].use(0)
-        self.textures['ui'].use(1)
-
-        self.create_programs(context)
-        self.main_array = context.vertex_array(
-            self.programs['main'],
-            [(self.main_buffer, '2f 2f', 'v_Position', 'v_TexCoords')]
-        )
-
+        self.mgl = MglRenderer(self, context)
 
         # Pygame
         self.quit = False
@@ -118,12 +78,14 @@ class Game(object):
         self.ui.extend(self.player.ui_elements.values())
 
         self.area = 'sandbox'
+        self.subarea = None
+
         self.tilemap = TilemapRenderer(self)
 
         self.enemy_spawns = None
         self.friendly_spawns = None
 
-        self.load_tilemap(self.area)
+        self.load_tilemap()
 
     def on_player_respawn(self):
         self.player.dead = False
@@ -140,8 +102,8 @@ class Game(object):
         self.camera.set_camera_shake(120)
         self.timers['player_respawn'] = [180, 0, self.on_player_respawn, []]
 
-    def load_tilemap(self, tilemap):
-        self.tilemap.load(tilemap)
+    def load_tilemap(self):
+        self.tilemap.load(self.area, self.subarea)
 
         if 'Player_spawn' in self.tilemap.flags and self.player.position == [0.0, 0.0]:
             self.player.rect.topleft = self.tilemap.flags['Player_spawn'][0]
@@ -150,16 +112,6 @@ class Game(object):
         self.enemy_spawns = {
             k: (v, (1, 500)) for k, v in self.tilemap.enemies.items()
         }
-
-    def create_programs(self, context):
-        self.programs['main'] = context.program(
-            vertex_shader=self.shaders['vert']['main'],
-            fragment_shader=self.shaders['frag']['main']
-        )
-        
-        self.programs['main']['dim_f'] = 0
-        self.programs['main']['entity'] = 0
-        self.programs['main']['ui'] = 1
 
     def update_enemyspawns(self):
         self.enemy_ticks[0] += 1 * self.delta_time
@@ -194,13 +146,6 @@ class Game(object):
                     break
 
             self.enemy_ticks[0] = 0
-
-    def update_buffers(self):
-        self.programs['main']['dim_f'].value = self.dim
-
-        for buffer in (b for b in self.buffers if self.buffers[b]):
-            self.buffers[buffer].release()
-            self.buffers[buffer] = None
 
     def update(self):
         for event in pygame.event.get():
@@ -338,7 +283,7 @@ class Game(object):
             self.fps_clock[0] = 0
             self.fps_surface = Fonts.create('m3x6', round(self.clock.get_fps()), 1.5)
 
-        self.update_buffers()
+        self.mgl.update()
 
         return self.quit
 
@@ -384,7 +329,4 @@ class Game(object):
         if self.delta_time != 0:
             self.entity_display.blit(self.entity_surface, self.camera.offset)
 
-        self.textures['entity'].write(self.entity_display.get_view('1'))
-        self.textures['ui'].write(self.ui_display.get_view('1'))
-
-        self.main_array.render(moderngl.TRIANGLE_STRIP)
+        self.mgl.render()

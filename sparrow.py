@@ -34,7 +34,7 @@ if __name__ == '__main__':
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=FutureWarning)
 
-        screen = pygame.display.set_mode(SCREEN_DIMENSIONS, pygame.OPENGL | pygame.DOUBLEBUF | pygame.FULLSCREEN | pygame.SCALED)
+        screen = pygame.display.set_mode(SCREEN_DIMENSIONS, pygame.OPENGL | pygame.DOUBLEBUF)
         context = moderngl.create_context()
 
     clock = pygame.time.Clock()

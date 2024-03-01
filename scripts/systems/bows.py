@@ -376,7 +376,7 @@ class Arrow(Sprite):
                 angle = (180 / math.pi) * math.atan2(*dist) - 90
                 self.image = pygame.transform.rotate(self.original_image, angle).convert_alpha()
 
-        for tile in game.tilemap.chunks[self.current_chunk]:
+        for tile in game.tilemap.tile_chunks[self.current_chunk]:
             if tile.rect.colliderect(self.rect):
                 game.projectiles.remove(self)
                 self.collision(game, tile)

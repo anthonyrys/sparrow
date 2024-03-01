@@ -17,16 +17,18 @@ class TilemapRenderer(object):
         self.chunk_dimensions = (15, 15)
         self.chunk_keys = None
         self.chunk_rects = {}
-        self.chunks = {}
+
+        self.tile_chunks = {}
+        self.decor_a_chunks = {}
+        self.decor_b_chunks = {}
 
         # Rendered prior to the player
-        self.decor_a = Sprites()
+        self.renderable_decor_a = Sprites()
         self.friendlies = Sprites()
 
         # Rendered after the player
-        self.tiles = Sprites()
-        self.renderable_tiles = []
-        self.decor_b = Sprites()
+        self.renderable_tiles = Sprites()
+        self.renderable_decor_b = Sprites()
 
         self.flags = None
         self.enemies = None
@@ -35,15 +37,23 @@ class TilemapRenderer(object):
         self.tilemap_size = (0, 0)
 
     def update(self):
-        self.renderable_tiles = []
-        for tile in self.tiles:
-            if tile.rect.colliderect(self.game.entity_rect):
-                self.renderable_tiles.append(tile)
+        self.renderable_decor_a.clear()
+        self.renderable_tiles.clear()
+        self.renderable_decor_b.clear()
+
+        for k in self.chunk_keys:
+            if self.chunk_rects[k].colliderect(self.game.entity_rect):
+                self.renderable_decor_a.extend(self.decor_a_chunks[k])
+                self.renderable_tiles.extend(self.tile_chunks[k])
+                self.renderable_decor_b.extend(self.decor_b_chunks[k])
 
         for friendly in self.friendlies:
             friendly.update(self.game)
 
     def render_a(self):
+        for decor in self.renderable_decor_a:
+            decor.render(self.game.entity_surface)
+
         for friendly in self.friendlies:
             friendly.render(self.game.entity_surface)
 
@@ -54,8 +64,14 @@ class TilemapRenderer(object):
 
             tile.render(self.game.entity_surface)
 
-    def load(self, name):
-        path = os.path.join(TILEMAP_FOLDER_PATH, name)
+        for decor in self.renderable_decor_b:
+            decor.render(self.game.entity_surface)
+
+    def load(self, area, subarea=None):
+        if subarea is None:
+            path = os.path.join(TILEMAP_FOLDER_PATH, area)
+        else:
+            path = os.path.join(TILEMAP_FOLDER_PATH, area, subarea) 
 
         with open(os.path.join(path, 'tilemap.json')) as t:
             data = json.load(t)
@@ -72,7 +88,6 @@ class TilemapRenderer(object):
         surface.set_colorkey((0, 0, 0))
 
         friendlies = []
-        tiles = []
 
         flags = {}
         enemies = {}
@@ -80,11 +95,13 @@ class TilemapRenderer(object):
         images = {}
         for image in data['config']['images']:
             images[image] = {}
-            images[image]['imgs'] = load_spritesheet(os.path.join(path, data['config']['images'][image]['path']), scale=2)
+            images[image]['imgs'] = load_spritesheet(os.path.join(path, data['config']['images'][image]['path']), scale=4)
             images[image]['tiles'] = data['config']['images'][image]['tiles']
 
         self.chunk_rects = {}
-        self.chunks = {}
+
+        self.tile_chunks = {}
+        self.decor_chunks = {}
 
         # Create chunks
         x, y = 0, 0
@@ -92,7 +109,10 @@ class TilemapRenderer(object):
             while x < dimensions[0]:
                 rect = pygame.Rect(x, y, data['config']['tile']['dimensions'][0] * self.chunk_dimensions[0], data['config']['tile']['dimensions'][1] * self.chunk_dimensions[1])
                 self.chunk_rects[(x, y)] = rect
-                self.chunks[(x, y)] = []
+
+                self.decor_a_chunks[(x, y)] = []
+                self.tile_chunks[(x, y)] = []
+                self.decor_b_chunks[(x, y)] = []
 
                 x += rect.width
 
@@ -134,12 +154,21 @@ class TilemapRenderer(object):
                     tile_data['strata']
                 )
 
-                for point in self.chunk_rects:
-                    if self.chunk_rects[point].colliderect(tile.rect):
-                        self.chunks[point].append(tile)
-                        break
+                if tile_data['tile'] == 'Tile':
+                    for point in self.chunk_rects:
+                        if self.chunk_rects[point].colliderect(tile.rect):
+                            self.tile_chunks[point].append(tile)
+                            break
 
-                tiles.append(tile)
+                elif tile_data['tile'] == 'Decor':
+                   for point in self.chunk_rects:
+                        if self.chunk_rects[point].colliderect(tile.rect):
+                            if tile_data['strata'] < 5:
+                                self.decor_a_chunks[point].append(tile)
+                            else:
+                                self.decor_b_chunks[point].append(tile)
+
+                            break
 
             else:
                 print(f'[LOAD_TILEMAP] Cannot resolve tile type: {tile_data["tile"]}')
@@ -148,9 +177,6 @@ class TilemapRenderer(object):
 
         self.friendlies.clear()
         self.friendlies.extend(friendlies)
-
-        self.tiles.clear()
-        self.tiles.extend(tiles)
 
         self.flags = flags
         self.enemies = enemies

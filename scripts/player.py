@@ -17,7 +17,6 @@ class Player(Sprite):
         super().__init__(position, pygame.Surface((32, 64)), index)
 
         self.previous_position = list(position)
-        self.current_chunks = []
 
         self.keybinds = {
             # Press
@@ -807,18 +806,7 @@ class Player(Sprite):
         self.update_inputs()
         self.update_velocity(game)
 
-        # Update current chunks
-        self.current_chunks = []
-
-        k = game.tilemap.chunk_keys
-        for i in range(len(game.tilemap.chunk_rects)):
-            if get_distance(self.rect.center, game.tilemap.chunk_rects[k[i]].center) <= game.tilemap.tile_size[0] * game.tilemap.chunk_dimensions[0] // 1.5:
-                self.current_chunks.append(k[i])
-
-        tiles = []
-        for c in self.current_chunks:
-            tiles.extend([t for t in game.tilemap.chunks[c] if get_distance(self.position, t.position) <= self.rect.height * 2])
-
+        tiles = game.tilemap.renderable_tiles
         self.previous_position = self.position
 
         self.rect.x += self.velocity[0] * game.delta_time

@@ -9,6 +9,13 @@ class Tile(Sprite):
     def render(self, surface):
         surface.blit(self.image, self.rect)
 
+class Decor(Sprite):
+    def __init__(self, position, image, index):
+        super().__init__(position, image, index)
+
+    def render(self, surface):
+        surface.blit(self.image, self.rect)
+
 class Barrier(Sprite):
     def __init__(self, position, image, index):
         super().__init__(position, image, index)
